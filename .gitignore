@@ -1,2 +1,8 @@
 \env
+# Esta carpeta suele ser el entorno virtual de Python (virtualenv).
+# Contiene todas las dependencias y librerías instaladas localmente para tu proyecto.
+# No suele incluirse en repositorios porque se puede recrear con requirements.txt.
+
 \__pycache__
+# Carpeta donde Python guarda archivos compilados (.pyc) para acelerar la ejecución.
+# Es generada automáticamente y no se debe subir al repositorio.
