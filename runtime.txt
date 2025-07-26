@@ -1,1 +1,4 @@
+# Este archivo indica a la plataforma de despliegue (como Render o Heroku)
+# qué versión de Python debe usar para ejecutar la aplicación.
+# En este caso, se especifica Python 3.10.13.
 python-3.10.13
