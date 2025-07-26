@@ -1,0 +1,172 @@
+body {
+  background: #f0f4f8;
+  font-family: 'Segoe UI', sans-serif;
+  padding-top: 3rem;
+}
+
+.container {
+  max-width: 1100px;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+  margin-bottom: 3rem;
+}
+
+h1 {
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #1e293b;
+}
+
+.btn-back {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #64748b;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.6rem 1.1rem;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+  z-index: 1000;
+}
+
+.btn-back:hover {
+  background: #475569;
+}
+
+.badge-eval {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.4em 0.7em;
+  border-radius: 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.badge-Buena {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.badge-Mala {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.badge-Creativa {
+  background-color: #f39c12;
+  color: white;
+}
+
+.badge-Pudo {
+  background-color: #3498db;
+  color: white;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f8fafc;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.tablero-mini {
+  font-family: monospace;
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 0.5rem;
+  max-width: 150px;
+  overflow-x: auto;
+}
+
+.tablero-mini div {
+  display: flex;
+  justify-content: center;
+}
+
+.tablero-mini span {
+  width: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.razon-tablero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+#rubricaPanel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  background-color: #ffffff;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  transition: right 0.4s ease-in-out;
+  padding: 2rem;
+  z-index: 1050;
+}
+
+#rubricaPanel.active {
+  right: 0;
+}
+
+.rubrica-entry {
+  margin-bottom: 1.5rem;
+}
+
+.rubrica-entry h5 {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.rubrica-entry p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+.rubrica-toggle-btn {
+  float: right;
+  margin-bottom: 1rem;
+}
+
+/* Tabla responsiva con scroll horizontal */
+.table-responsive {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+table.table {
+  min-width: 900px;
+}
+
+ /* Ajustes para que el radar se vea bien y centrado */
+#radarContainer {
+  max-width: 600px;
+  margin: 1.5rem auto;
+  background: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+}
+
+#radarContainer h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}

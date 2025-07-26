@@ -1,0 +1,129 @@
+body {
+  background: linear-gradient(135deg, #f8fafc, #e0e7ff);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 650px;
+  margin: 3rem auto;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+  padding: 2rem 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+h1 {
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 1.1px;
+}
+
+table.tablero {
+  border-collapse: collapse;
+  width: 200px;
+  margin: 0 auto 2rem auto;
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  user-select: none;
+}
+
+table.tablero td {
+  width: 60px;
+  height: 60px;
+  border: 2px solid #cbd5e1;
+  vertical-align: middle;
+  font-weight: bold;
+  font-size: 24px;
+  color: #334155;
+}
+
+table.tablero td.x {
+  color: #e74c3c;
+}
+
+table.tablero td.o {
+  color: #2980b9;
+}
+
+table.tablero td.marcada {
+  background-color: #fff8dc;
+  border: 3px solid #f1c40f;
+}
+
+.btn-back {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #64748b;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.6rem 1.1rem;
+  box-shadow: 0 6px 10px rgb(0 0 0 / 0.15);
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.btn-history {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  background-color: #2563eb;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+}
+
+.rubrica-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.rubrica-panel {
+  position: fixed;
+  top: 0;
+  right: -500px;
+  width: 480px;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  overflow-y: auto;
+  transition: right 0.4s ease;
+  z-index: 1050;
+}
+
+.rubrica-panel.open {
+  right: 0;
+}
+
+.rubrica-panel h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.rubrica-panel table {
+  font-size: 0.85rem;
+}
+
+.rubrica-panel .btn-close {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.2rem;
+}
