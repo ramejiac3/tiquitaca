@@ -1,10 +1,10 @@
-Flask
-matplotlib
-numpy
-pandas
-transformers
-google-generativeai
-Flask==2.3.2
-Flask-SQLAlchemy==3.0.3
-SQLAlchemy==1.4.49
-gunicorn==20.1.0
+Flask                     # Framework web ligero en Python para crear aplicaciones y manejar rutas HTTP
+matplotlib                # Biblioteca para crear gráficos y visualizaciones en 2D (usada para dibujar tableros)
+numpy                     # Biblioteca para manejo eficiente de arrays y operaciones numéricas
+pandas                    # Herramienta para manipulación y análisis de datos con estructuras tipo tabla (DataFrame)
+transformers              # Biblioteca para usar modelos de lenguaje y deep learning preentrenados de Hugging Face
+google-generativeai       # SDK de Google para usar modelos generativos de inteligencia artificial (ej. Gemini)
+Flask==2.3.2              # Versión específica del framework Flask para asegurar compatibilidad
+Flask-SQLAlchemy==3.0.3   # Extensión de Flask que integra SQLAlchemy para manejo ORM de bases de datos
+SQLAlchemy==1.4.49        # Biblioteca ORM para mapear clases Python a tablas en bases de datos SQL
+gunicorn==20.1.0          # Servidor WSGI para desplegar aplicaciones Flask en producción (más eficiente que el servidor de desarrollo)
