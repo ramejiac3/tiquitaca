@@ -378,8 +378,8 @@ def insertar_evaluacion_bd(match_id, movimiento, evaluacion, razon, jugador, mod
             jugador=jugador,
             modelo=modelo,
             movimiento=movimiento_json,
-            evaluacion=evaluacion_json,
-            razon=razon
+            evaluacion_automatica=evaluacion_json,
+            razon_automatica=razon                  
         )
         db.session.add(nueva_eval)
     # Confirma los cambios en la base de datos
