@@ -27,7 +27,7 @@ db = SQLAlchemy()
 db.init_app(app)
     
 # --- Modelo de datos SQLAlchemy para evaluaciones ---
-class evaluacion(db.Model):
+class Evaluacion(db.Model):
     __tablename__ = 'evaluacion'
     id = db.Column(db.Integer, primary_key=True)
     match_id = db.Column(db.String(50), nullable=False)
