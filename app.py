@@ -28,9 +28,13 @@ db.init_app(app)
 # Crear todas las tablas si no existen
 with app.app_context():
     db.create_all()
-
+################
+################
 # --- Modelo de datos SQLAlchemy para evaluaciones ---
 class Evaluacion(db.Model):
+    ###
+     __tablename__ = 'evaluacion'  # sin tilde, más seguro
+    ###
     id = db.Column(db.Integer, primary_key=True)
     match_id = db.Column(db.String(50), nullable=False)
     jugador = db.Column(db.String(50), nullable=False)
