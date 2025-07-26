@@ -14,24 +14,21 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from juego_ia import buscar_jugada, inicializar_tablero, revisar_ganador, reiniciar_indice, indice_actual
 
 # --- Base de datos con SQLAlchemy ---
-from db_handler import create_connection
+from flask import Flask                
 from flask_sqlalchemy import SQLAlchemy
+# from db_handler import create_connection  # Puedes mantener esto si lo usas en otro lado
 
 # --- Inicialización de Flask y configuración de base de datos ---
-db = SQLAlchemy()
 app = Flask(__name__)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///evaluaciones.db'  # Base de datos SQLite local
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactiva el seguimiento de cambios para eficiencia
+
+db = SQLAlchemy()
 db.init_app(app)
     
-################
-################
 # --- Modelo de datos SQLAlchemy para evaluaciones ---
 class Evaluacion(db.Model):
-    ###
-     __tablename__ = 'evaluacion'  # sin tilde, más seguro
-    ###
+    __tablename__ = 'evaluacion'  # sin tilde
     id = db.Column(db.Integer, primary_key=True)
     match_id = db.Column(db.String(50), nullable=False)
     jugador = db.Column(db.String(50), nullable=False)
