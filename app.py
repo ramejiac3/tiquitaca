@@ -24,13 +24,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///evaluaciones.db'  # Base de datos SQLite local
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactiva el seguimiento de cambios para eficiencia
 db.init_app(app)
-
-# Crear todas las tablas si no existen
-with app.app_context():
-    db.create_all()
-
-if __name__ == '__main__':
-    app.run(debug=True)
     
 ################
 ################
@@ -48,6 +41,13 @@ class Evaluacion(db.Model):
     evaluacion_humana = db.Column(db.Text, nullable=True)
     razon_automatica = db.Column(db.Text, nullable=True)
     razon_humana = db.Column(db.Text, nullable=True)
+
+# Crear todas las tablas si no existen
+with app.app_context():
+    db.create_all()
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 # --- Rúbrica de evaluación automática: debe coincidir con la del frontend JS ---
 DIMENSIONES = [
