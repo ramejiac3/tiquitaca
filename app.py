@@ -14,7 +14,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from juego_ia import buscar_jugada, inicializar_tablero, revisar_ganador, reiniciar_indice, indice_actual
 
 # --- Base de datos con SQLAlchemy ---
-from flask import Flask                
+from flask import Flask      
+from flask import Flask, send_file
 from flask_sqlalchemy import SQLAlchemy
 # from db_handler import create_connection  # Puedes mantener esto si lo usas en otro lado
 
@@ -38,7 +39,14 @@ class Evaluacion(db.Model):
     evaluacion_humana = db.Column(db.Text, nullable=True)
     razon_automatica = db.Column(db.Text, nullable=True)
     razon_humana = db.Column(db.Text, nullable=True)
+###
 
+@app.route('/descargar-db')
+def descargar_db():
+    try:
+        return send_file('evaluaciones.db', as_attachment=True)
+    except Exception as e:
+        return f"Error al descargar la base de datos: {str(e)}", 500
 # Crear todas las tablas si no existen
 with app.app_context():
     db.create_all()
