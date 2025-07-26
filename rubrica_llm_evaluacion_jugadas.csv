@@ -1,0 +1,8 @@
+Dimensión,Nivel 1 – Deficiente,Nivel 2 – Aceptable,Nivel 3 – Alto
+Comprensión de Reglas,Viola reglas básicas: casilla ocupada o fuera del tablero.,"Cumple reglas básicas, pero omite situaciones menos evidentes.","Siempre movimientos legales, respeta todas las reglas del turno."
+Validez y Legalidad,Movimiento inválido o ilegal (fuera de límites).,"Movimiento válido, sin análisis profundo.",Movimiento válido y elegido tras un análisis completo del tablero.
+Razonamiento Estratégico,"Acción sin lógica, aleatoria o contraproducente.","Intención estratégica simple (bloquear/avanzar), sin anticipación.","Justificación clara y anticipada, maximiza chances de ganar."
+Factualidad,Explicación incorrecta o no relacionada con el tablero real.,"Justificación generalmente correcta, con imprecisiones menores.","Explicación precisa, basada en hechos concretos del tablero."
+Coherencia Explicativa,Explicación confusa o contradictoria.,Explicación clara pero superficial.,"Explicación lógica, completa y alineada con el movimiento."
+Claridad Lingüística,Lenguaje poco claro o con errores graves.,Lenguaje claro con pequeños errores.,"Lenguaje preciso, gramaticalmente correcto y fácil de entender."
+Adaptabilidad,Ignora el cambio o jugada previa del oponente.,Se adapta de forma básica o tardía.,Se adapta rápidamente y ajusta su estrategia eficazmente.

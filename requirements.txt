@@ -1,0 +1,10 @@
+flask
+matplotlib
+numpy
+pandas
+transformers
+google-generativeai
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.3
+SQLAlchemy==2.0.19
+gunicorn==20.1.0
