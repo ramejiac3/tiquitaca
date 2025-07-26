@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Evaluar Última Jugada - Tres en Raya IA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap para estilos y componentes responsivos -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Estilos personalizados propios del proyecto -->
+    <link rel="stylesheet" href="/static/css/evaluar.css" />
+  </head>
+  <body>
+    <!-- Botón para volver al inicio -->
+    <button
+      class="btn btn-secondary btn-back"
+      onclick="window.location.href='/'"
+    >
+      ← Inicio
+    </button>
+
+    <!-- Botón para mostrar/ocultar la rúbrica -->
+    <button class="btn btn-outline-info rubrica-btn" onclick="toggleRubrica()">
+      📘 Ver Rúbrica
+    </button>
+
+    <!-- Panel lateral que contiene la rúbrica de evaluación -->
+    <div class="rubrica-panel" id="rubricaPanel">
+      <!-- Botón para cerrar el panel de rúbrica -->
+      <button class="btn btn-sm btn-light btn-close" onclick="toggleRubrica()">
+        ✕
+      </button>
+      <h2>Rúbrica de Evaluación</h2>
+
+      <!-- Tabla con criterios de evaluación en 3 niveles -->
+      <table class="table table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th>Dimensión</th>
+            <th>Nivel 1</th>
+            <th>Nivel 2</th>
+            <th>Nivel 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Cada fila representa una dimensión con sus descripciones por nivel -->
+          <tr>
+            <td>Comprensión de Reglas</td>
+            <td>Viola reglas básicas</td>
+            <td>Cumple reglas básicas</td>
+            <td>Siempre legal</td>
+          </tr>
+          <tr>
+            <td>Validez y Legalidad</td>
+            <td>Movimiento inválido</td>
+            <td>Válido, sin análisis</td>
+            <td>Válido y analizado</td>
+          </tr>
+          <tr>
+            <td>Razonamiento Estratégico</td>
+            <td>Sin lógica</td>
+            <td>Intención simple</td>
+            <td>Justificación anticipada</td>
+          </tr>
+          <tr>
+            <td>Factualidad</td>
+            <td>Explicación incorrecta</td>
+            <td>Correcta, imprecisa</td>
+            <td>Basada en hechos concretos</td>
+          </tr>
+          <tr>
+            <td>Coherencia Explicativa</td>
+            <td>Confusa</td>
+            <td>Clara pero superficial</td>
+            <td>Lógica y completa</td>
+          </tr>
+          <tr>
+            <td>Claridad Lingüística</td>
+            <td>Errores graves</td>
+            <td>Pequeños errores</td>
+            <td>Gramática precisa</td>
+          </tr>
+          <tr>
+            <td>Adaptabilidad</td>
+            <td>Ignora jugada previa</td>
+            <td>Adaptación básica</td>
+            <td>Se adapta eficazmente</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="container">
+      <h1>Evaluar Última Jugada</h1>
+
+      {% if jugada %}
+      <!-- Si hay una jugada disponible para evaluar -->
+
+      <p class="text-center fw-semibold mb-3" style="font-size: 1.2rem">
+        Última jugada.
+      </p>
+
+      <!-- Contenedor del tablero visual dinámico -->
+      <div id="tablero-dinamico" class="mt-3 mb-3"></div>
+
+      <!-- Información de la jugada evaluada -->
+      <div
+        id="info-jugada"
+        aria-live="polite"
+        style="margin-top: 1rem; font-size: 1.2rem"
+        class="mb-4 mt-4 text-center"
+      >
+        INFO DE LA JUGADA: Cargando...
+      </div>
+
+      <!-- Formulario de evaluación -->
+      <div class="d-flex gap-3 flex-wrap">
+        <form
+          action="/guardar_evaluacion"
+          method="POST"
+          class="flex-grow-1"
+          style="font-size: 1.2rem"
+          onsubmit="return validarFormulario()"
+        >
+          <!-- Campos ocultos con los datos de la jugada actual -->
+          <input type="hidden" name="match_id" value="{{ jugada.match_id }}" />
+          <input type="hidden" name="jugador" value="{{ jugada.jugador }}" />
+          <input type="hidden" name="modelo" value="{{ jugada.modelo }}" />
+          <input
+            type="hidden"
+            name="movimiento"
+            value="{{ jugada.movimiento | tojson | safe }}"
+          />
+
+          <h4 class="mb-3">Evaluación por Rúbrica</h4>
+
+          <!-- Dimensiones a evaluar con opciones de radio -->
+          {% set dimensiones = [
+            ('Comprensión de Reglas', '¿El movimiento respeta las reglas básicas del juego?'),
+            ('Validez y Legalidad', '¿Es un movimiento permitido y legal?'),
+            ('Razonamiento Estratégico', '¿Se nota una intención estratégica en el movimiento?'),
+            ('Factualidad', '¿La justificación se basa en el estado real del tablero?'),
+            ('Coherencia Explicativa', '¿La explicación tiene sentido con el movimiento realizado?'),
+            ('Claridad Lingüística', '¿Está bien expresado, sin errores graves?'),
+            ('Adaptabilidad', '¿Se adapta al contexto actual del juego?')
+          ] %}
+
+          {% for nombre, descripcion in dimensiones %}
+          <div class="mb-4">
+            <label class="form-label fw-bold">{{ nombre }}</label>
+            <p class="text-muted">{{ descripcion }}</p>
+            <!-- Radios de nivel 1 a 3 -->
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="rubrica[{{ nombre }}]"
+                value="1"
+                required
+              />
+              <label class="form-check-label">1 - Bajo</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="rubrica[{{ nombre }}]"
+                value="2"
+              />
+              <label class="form-check-label">2 - Medio</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="rubrica[{{ nombre }}]"
+                value="3"
+              />
+              <label class="form-check-label">3 - Alto</label>
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- Campo para la justificación escrita de la evaluación -->
+          <div class="mb-3">
+            <label for="razon" class="form-label fw-bold">
+              Explicación general de la evaluación
+            </label>
+            <textarea
+              name="razon"
+              id="razon"
+              class="form-control"
+              rows="4"
+              style="font-size: 1.1rem"
+              placeholder="Escribe una justificación completa..."
+            ></textarea>
+          </div>
+
+          <!-- Botón de envío del formulario -->
+          <button type="submit" class="btn btn-success btn-lg w-100">
+            ✅ Guardar Evaluación
+          </button>
+        </form>
+      </div>
+
+      <!-- Enlace para ver el historial de evaluaciones anteriores -->
+      <a href="/evaluaciones_historial" class="btn-history mt-4" style="font-size: 1.2rem;">
+        📜 Ver historial de evaluaciones
+      </a>
+
+      {% else %}
+      <!-- Mensaje cuando no hay jugadas aún para evaluar -->
+      <p class="text-center fs-5 mt-5">
+        No hay jugadas para evaluar aún. Juega primero para generar jugadas.
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- Script JS para el comportamiento de la página -->
+    <script src="/static/js/evaluar.js"></script>
+
+    <!-- Bootstrap JS (para componentes interactivos) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

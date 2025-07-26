@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rúbrica de Evaluación</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Rúbrica de Evaluación de Jugadas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Dimensión</th>
+                <th>Nivel 1 – Deficiente</th>
+                <th>Nivel 2 – Aceptable</th>
+                <th>Nivel 3 – Alto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in rubrica %}
+            <tr>
+                <td><strong>{{ fila.dimension }}</strong></td>
+                <td>{{ fila.nivel1 }}</td>
+                <td>{{ fila.nivel2 }}</td>
+                <td>{{ fila.nivel3 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
