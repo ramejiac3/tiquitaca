@@ -804,4 +804,3 @@ def grafico_radar():
 if __name__ == "__main__":
     # Ejecutar la app en modo debug para desarrollo
     app.run(debug=True)
-
