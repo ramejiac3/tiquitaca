@@ -1,129 +1,200 @@
 body {
+  /* Establece un fondo con degradado diagonal y define una fuente legible para todo el sitio */
   background: linear-gradient(135deg, #f8fafc, #e0e7ff);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  /* Asegura que el contenido ocupe al menos el alto completo de la pantalla */
   min-height: 100vh;
+  /* Evita el desplazamiento horizontal en caso de desbordes */
   overflow-x: hidden;
 }
 
 .container {
+  /* Limita el ancho del contenedor principal a 650px */
   max-width: 650px;
+  /* Centra el contenedor vertical y horizontalmente con margen automático */
   margin: 3rem auto;
+  /* Establece un fondo blanco para el contenedor */
   background: white;
+  /* Aplica bordes redondeados */
   border-radius: 15px;
+  /* Añade una sombra sutil para resaltar el contenedor */
   box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+  /* Añade espacio interno (padding) alrededor del contenido */
   padding: 2rem 2.5rem;
+  /* Define la posición relativa para controlar el orden de apilamiento */
   position: relative;
+  /* Establece el orden del contenedor sobre otros elementos */
   z-index: 1;
 }
 
 h1 {
+  /* Aplica un grosor de fuente alto al título principal */
   font-weight: 700;
+  /* Define el color del texto */
   color: #1e293b;
+  /* Añade espacio inferior entre el título y otros elementos */
   margin-bottom: 2rem;
+  /* Centra el texto horizontalmente */
   text-align: center;
+  /* Aumenta el espaciado entre letras */
   letter-spacing: 1.1px;
 }
 
 table.tablero {
+  /* Fusiona los bordes de las celdas de la tabla */
   border-collapse: collapse;
+  /* Establece un ancho fijo para la tabla */
   width: 200px;
+  /* Centra la tabla y añade espacio inferior */
   margin: 0 auto 2rem auto;
+  /* Centra el texto en las celdas */
   text-align: center;
+  /* Aplica negrita al texto */
   font-weight: bold;
+  /* Aumenta el tamaño de fuente para mejor visibilidad */
   font-size: 24px;
+  /* Impide que el usuario seleccione texto dentro de la tabla */
   user-select: none;
 }
 
 table.tablero td {
+  /* Define el ancho de cada celda */
   width: 60px;
+  /* Define el alto de cada celda */
   height: 60px;
+  /* Aplica un borde a cada celda */
   border: 2px solid #cbd5e1;
+  /* Centra verticalmente el contenido dentro de la celda */
   vertical-align: middle;
+  /* Refuerza la negrita del texto */
   font-weight: bold;
+  /* Tamaño de fuente consistente */
   font-size: 24px;
+  /* Define el color del texto por defecto */
   color: #334155;
 }
 
 table.tablero td.x {
+  /* Define un color distintivo (rojo) para la celda con valor 'X' */
   color: #e74c3c;
 }
 
 table.tablero td.o {
+  /* Define un color distintivo (azul) para la celda con valor 'O' */
   color: #2980b9;
 }
 
 table.tablero td.marcada {
+  /* Aplica un fondo específico para una celda marcada */
   background-color: #fff8dc;
+  /* Aplica un borde más grueso y de color amarillo */
   border: 3px solid #f1c40f;
 }
 
 .btn-back {
+  /* Fija el botón en la parte superior izquierda de la pantalla */
   position: fixed;
   top: 20px;
   left: 20px;
+  /* Establece el color de fondo del botón */
   background: #64748b;
+  /* Define el color del texto del botón */
   color: white;
+  /* Aumenta el grosor de la fuente */
   font-weight: 600;
+  /* Aplica bordes redondeados al botón */
   border-radius: 10px;
+  /* Añade espacio interno al botón */
   padding: 0.6rem 1.1rem;
+  /* Aplica una sombra al botón para destacar */
   box-shadow: 0 6px 10px rgb(0 0 0 / 0.15);
+  /* Elimina el borde por defecto */
   border: none;
+  /* Cambia el cursor al pasar el mouse */
   cursor: pointer;
+  /* Asegura que el botón esté por encima de otros elementos */
   z-index: 1000;
 }
 
 .btn-history {
+  /* Hace que el botón ocupe el ancho completo del contenedor */
   display: block;
   width: 100%;
+  /* Añade espacio superior para separación */
   margin-top: 1.5rem;
+  /* Aplica negrita al texto */
   font-weight: 600;
+  /* Bordes redondeados */
   border-radius: 12px;
+  /* Espaciado interno del botón */
   padding: 0.8rem 1.2rem;
+  /* Establece color de fondo azul */
   background-color: #2563eb;
+  /* Color del texto blanco */
   color: white;
+  /* Centra el texto del botón */
   text-align: center;
+  /* Elimina el subrayado del enlace */
   text-decoration: none;
 }
 
 .rubrica-btn {
+  /* Fija el botón en la parte superior derecha */
   position: fixed;
   top: 20px;
   right: 20px;
+  /* Asegura que se muestre sobre otros elementos */
   z-index: 1000;
 }
 
 .rubrica-panel {
+  /* Panel fijo en el lado derecho, inicialmente oculto fuera de pantalla */
   position: fixed;
   top: 0;
   right: -500px;
+  /* Define el ancho y alto del panel */
   width: 480px;
   height: 100%;
+  /* Establece fondo blanco */
   background: #ffffff;
+  /* Aplica sombra en el borde izquierdo para destacar */
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  /* Espaciado interno dentro del panel */
   padding: 2rem;
+  /* Permite el desplazamiento vertical del contenido */
   overflow-y: auto;
+  /* Agrega una transición suave al abrir o cerrar el panel */
   transition: right 0.4s ease;
+  /* Asegura que el panel se superponga correctamente */
   z-index: 1050;
 }
 
 .rubrica-panel.open {
+  /* Cuando se añade la clase 'open', el panel se desplaza hacia la vista */
   right: 0;
 }
 
 .rubrica-panel h2 {
+  /* Define el tamaño de fuente del encabezado del panel */
   font-size: 1.5rem;
+  /* Añade espacio inferior */
   margin-bottom: 1.2rem;
+  /* Aplica un estilo de fuente negrita */
   font-weight: 700;
+  /* Centra el texto del encabezado */
   text-align: center;
 }
 
 .rubrica-panel table {
+  /* Reduce el tamaño de fuente en las tablas del panel */
   font-size: 0.85rem;
 }
 
 .rubrica-panel .btn-close {
+  /* Posiciona el botón de cierre en la esquina superior izquierda del panel */
   position: absolute;
   top: 10px;
   left: 10px;
+  /* Aumenta el tamaño del texto del botón */
   font-size: 1.2rem;
 }
