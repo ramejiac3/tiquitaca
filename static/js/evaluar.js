@@ -149,3 +149,4 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error al obtener el estado:", err);
     });
 });
+
