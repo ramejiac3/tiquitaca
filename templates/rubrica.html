@@ -1,37 +1,93 @@
 <!DOCTYPE html>
+<!-- Declaración del tipo de documento: HTML5 -->
+
 <html lang="es">
+<!-- Elemento raíz del documento HTML con el atributo de idioma configurado a español -->
+
 <head>
     <meta charset="UTF-8">
+    <!-- Establece la codificación de caracteres a UTF-8 para soportar caracteres especiales -->
+
     <title>Rúbrica de Evaluación</title>
+    <!-- Título que aparecerá en la pestaña del navegador -->
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        h1 { color: #333; }
+        /* Estilos internos para definir el diseño de la página */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 30px; 
+        }
+        /* Estilo general del cuerpo: tipografía y margen */
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        /* La tabla ocupará todo el ancho, bordes colapsados y margen superior */
+
+        th, td { 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            text-align: left; 
+        }
+        /* Estilos para encabezados y celdas: borde, espaciado interno y alineación izquierda */
+
+        th { 
+            background-color: #f4f4f4; 
+        }
+        /* Fondo gris claro para los encabezados de tabla */
+
+        tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+        }
+        /* Las filas pares de la tabla tienen un fondo ligeramente gris para facilitar la lectura */
+
+        h1 { 
+            color: #333; 
+        }
+        /* Estilo para el título principal: color gris oscuro */
     </style>
 </head>
+
 <body>
     <h1>Rúbrica de Evaluación de Jugadas</h1>
+    <!-- Título principal visible en la página -->
+
     <table>
+        <!-- Inicio de la tabla que contiene la rúbrica -->
+
         <thead>
             <tr>
+                <!-- Fila de encabezado de la tabla -->
                 <th>Dimensión</th>
                 <th>Nivel 1 – Deficiente</th>
                 <th>Nivel 2 – Aceptable</th>
                 <th>Nivel 3 – Alto</th>
             </tr>
         </thead>
+
         <tbody>
+            <!-- Cuerpo de la tabla con contenido dinámico -->
             {% for fila in rubrica %}
+            <!-- Bucle de plantilla (probablemente Jinja2 o similar) que itera sobre cada fila de la rúbrica -->
+
             <tr>
+                <!-- Fila individual para cada dimensión -->
                 <td><strong>{{ fila.dimension }}</strong></td>
+                <!-- Primera celda: nombre de la dimensión en negrita -->
+
                 <td>{{ fila.nivel1 }}</td>
+                <!-- Segunda celda: descripción del Nivel 1 -->
+
                 <td>{{ fila.nivel2 }}</td>
+                <!-- Tercera celda: descripción del Nivel 2 -->
+
                 <td>{{ fila.nivel3 }}</td>
+                <!-- Cuarta celda: descripción del Nivel 3 -->
             </tr>
             {% endfor %}
+            <!-- Fin del bucle -->
         </tbody>
     </table>
 </body>
