@@ -1,16 +1,17 @@
-import sqlite3
+import sqlite3  # Importa el módulo sqlite3 para permitir la conexión y manipulación de bases de datos SQLite
 
-DB_PATH = 'tres_raya.db'
+DB_PATH = 'tres_raya.db'  # Define la ruta al archivo de base de datos SQLite que se utilizará
 
-def create_connection():
-    conn = sqlite3.connect(DB_PATH)
-    return conn
+def create_connection():  # Función que crea y devuelve una conexión a la base de datos
+    conn = sqlite3.connect(DB_PATH)  # Establece la conexión con la base de datos SQLite definida
+    return conn  # Devuelve el objeto de conexión creado
 
-def create_tables():
-    conn = create_connection()
-    c = conn.cursor()
+def create_tables():  # Función que crea las tablas necesarias en la base de datos si no existen
+    conn = create_connection()  # Llama a la función para establecer la conexión a la base de datos
+    c = conn.cursor()  # Crea un cursor para ejecutar sentencias SQL
 
-    # Tabla jugadas (ya la creaste con DB Browser, esta función la puedes usar para crear si quieres crear desde código)
+    # Crea la tabla 'jugadas' si no existe, utilizada para almacenar los movimientos del juego
+    # Esta tabla puede haber sido creada manualmente, pero aquí se define su estructura en código
     c.execute('''
     CREATE TABLE IF NOT EXISTS jugadas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +28,8 @@ def create_tables():
     )
     ''')
 
-    # Tabla evaluaciones (puedes crearla aquí si quieres)
+    # Crea la tabla 'evaluaciones' si no existe, utilizada para almacenar evaluaciones humanas de las jugadas
+    
     c.execute('''
     CREATE TABLE IF NOT EXISTS evaluaciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,9 +48,12 @@ def create_tables():
     )
     ''')
 
-    conn.commit()
-    conn.close()
 
-# Llama esta función sólo una vez para crear tablas, luego la puedes comentar o eliminar
+    conn.commit()  # Guarda los cambios realizados en la base de datos
+    conn.close()  # Cierra la conexión con la base de datos
+
+# Punto de entrada principal del script
+# Llama a la función para crear las tablas solo una vez al ejecutar este archivo directamente
 if __name__ == '__main__':
-    create_tables()
+    create_tables()  # Ejecuta la función para crear las tablas en la base de datos
+
