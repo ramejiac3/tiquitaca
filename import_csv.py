@@ -62,3 +62,4 @@ def importar_jugadas():
 # Punto de entrada principal: si se ejecuta directamente este script, se llama a importar_jugadas()
 if __name__ == "__main__":
     importar_jugadas()
+
