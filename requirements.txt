@@ -8,3 +8,4 @@ Flask==2.3.2              # Versión específica del framework Flask para asegur
 Flask-SQLAlchemy==3.0.3   # Extensión de Flask que integra SQLAlchemy para manejo ORM de bases de datos
 SQLAlchemy==1.4.49        # Biblioteca ORM para mapear clases Python a tablas en bases de datos SQL
 gunicorn==20.1.0          # Servidor WSGI para desplegar aplicaciones Flask en producción (más eficiente que el servidor de desarrollo)
+
