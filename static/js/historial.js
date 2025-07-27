@@ -74,3 +74,4 @@ document.addEventListener('DOMContentLoaded', () => {
     new Chart(ctx, config); // Crea el gráfico usando Chart.js
   }
 });
+
