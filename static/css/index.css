@@ -1,129 +1,128 @@
 body {
-  font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(to right, #ffecd2, #fcb69f);
-  text-align: center;
-  margin: 0;
-  padding: 20px;
+  font-family: "Segoe UI", sans-serif; /* Define la fuente principal del sitio, usando Segoe UI o una fuente sans-serif por defecto */
+  background: linear-gradient(to right, #ffecd2, #fcb69f); /* Aplica un degradado de color de izquierda a derecha como fondo */
+  text-align: center; /* Centra horizontalmente el texto dentro del body */
+  margin: 0; /* Elimina el margen exterior del body */
+  padding: 20px; /* Aplica un espacio interno uniforme alrededor del contenido */
 }
 
 h1 {
-  color: #2c3e50;
-  margin-bottom: 20px;
+  color: #2c3e50; /* Establece un color oscuro para el texto del encabezado principal */
+  margin-bottom: 20px; /* Agrega espacio debajo del h1 para separarlo del contenido siguiente */
 }
 
 table {
-  margin: 20px auto;
-  border-collapse: collapse;
+  margin: 20px auto; /* Centra la tabla horizontalmente y aplica un margen vertical de 20px */
+  border-collapse: collapse; /* Elimina los espacios entre bordes de celdas adyacentes */
 }
 
 td {
-  width: 100px;
-  height: 100px;
-  font-size: 42px;
-  font-weight: bold;
-  border: 4px solid #fff;
-  background-color: #ffffffcc;
-  transition: background-color 0.3s ease, transform 0.2s;
-  cursor: default;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  user-select: none;
+  width: 100px; /* Define el ancho de cada celda */
+  height: 100px; /* Define la altura de cada celda */
+  font-size: 42px; /* Establece un tamaño de fuente grande para el contenido */
+  font-weight: bold; /* Aplica negrita al texto dentro de las celdas */
+  border: 4px solid #fff; /* Aplica un borde blanco de 4 píxeles */
+  background-color: #ffffffcc; /* Establece un fondo blanco semitransparente */
+  transition: background-color 0.3s ease, transform 0.2s; /* Aplica transición suave al color de fondo y escala */
+  cursor: default; /* Usa el cursor por defecto al pasar sobre la celda */
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* Añade una sombra sutil para dar efecto de profundidad */
+  border-radius: 10px; /* Redondea las esquinas de la celda */
+  user-select: none; /* Evita que el contenido dentro de la celda pueda ser seleccionado por el usuario */
 }
 
 td.x {
-  color: #e74c3c;
+  color: #e74c3c; /* Establece el color rojo para la clase 'x', representando al jugador X */
 }
 
 td.o {
-  color: #2980b9;
+  color: #2980b9; /* Establece un color azul para la clase 'o', representando al jugador O */
 }
 
 td:hover {
-  background-color: #f7f7f7;
-  transform: scale(1.05);
+  background-color: #f7f7f7; /* Cambia el color de fondo al pasar el cursor por encima de la celda */
+  transform: scale(1.05); /* Aumenta ligeramente el tamaño de la celda en hover */
 }
 
 button {
-  padding: 12px 20px;
-  margin: 10px;
-  font-size: 1.4rem;
-  border: none;
-  border-radius: 8px;
-  background-color: #27ae60;
-  color: white;
-  font-weight: bold;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 12px 20px; /* Aplica relleno interno al botón (vertical y horizontal) */
+  margin: 10px; /* Separa el botón de elementos cercanos con un margen */
+  font-size: 1.4rem; /* Define un tamaño de fuente relativo al tamaño base */
+  border: none; /* Elimina el borde por defecto del botón */
+  border-radius: 8px; /* Redondea las esquinas del botón */
+  background-color: #27ae60; /* Aplica un color verde al fondo del botón */
+  color: white; /* Establece el color del texto del botón en blanco */
+  font-weight: bold; /* Muestra el texto del botón en negrita */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Agrega sombra al botón para dar efecto de elevación */
+  cursor: pointer; /* Cambia el cursor a una mano para indicar que es interactivo */
+  transition: background-color 0.3s ease; /* Aplica una transición suave al color de fondo en hover */
 }
 
 button:hover {
-  background-color: #1e8449;
+  background-color: #1e8449; /* Cambia el color del botón a un verde más oscuro al pasar el cursor */
 }
 
 #error-msg {
-  display: none;
-  background-color: #f44336;
-  color: white;
-  padding: 10px;
-  margin: 10px auto;
-  border-radius: 5px;
-  max-width: 50%;
-  font-size: 1.2rem;
+  display: none; /* Oculta el mensaje de error por defecto */
+  background-color: #f44336; /* Aplica un color rojo de fondo para indicar error */
+  color: white; /* Establece el color del texto del error en blanco */
+  padding: 10px; /* Aplica espacio interno al mensaje */
+  margin: 10px auto; /* Aplica margen vertical y centra horizontalmente */
+  border-radius: 5px; /* Redondea los bordes del mensaje de error */
+  max-width: 50%; /* Limita el ancho máximo del mensaje de error al 50% del contenedor */
+  font-size: 1.2rem; /* Establece un tamaño de fuente mediano */
 }
 
 #btn-evaluar {
-  display: inline-block;
-  padding: 12px 20px;
-  background-color: #2980b9;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: bold;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-  font-size: 1.2rem;
-  cursor: pointer;
+  display: inline-block; /* Permite que el botón se comporte como bloque en línea */
+  padding: 12px 20px; /* Aplica relleno interno al botón */
+  background-color: #2980b9; /* Color de fondo azul */
+  color: white; /* Color del texto en blanco */
+  text-decoration: none; /* Elimina subrayado si se trata de un enlace */
+  border-radius: 8px; /* Redondea los bordes */
+  font-weight: bold; /* Aplica negrita al texto */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Añade sombra al botón */
+  transition: background-color 0.3s ease; /* Aplica transición al fondo en hover */
+  margin-top: 20px; /* Agrega espacio sobre el botón */
+  font-size: 1.2rem; /* Define tamaño de fuente */
+  cursor: pointer; /* Muestra un cursor de mano al pasar sobre el botón */
 }
 
 #btn-evaluar:hover {
-  background-color: #1c5980;
+  background-color: #1c5980; /* Cambia el fondo del botón a un azul más oscuro al pasar el cursor */
 }
 
 /* Nueva clase para deshabilitar botón */
 #btn-evaluar.disabled {
-  pointer-events: none;
-  opacity: 0.5;
-  cursor: default;
+  pointer-events: none; /* Desactiva cualquier interacción con el botón */
+  opacity: 0.5; /* Reduce la opacidad para indicar que está deshabilitado */
+  cursor: default; /* Cambia el cursor al estilo por defecto */
 }
 
 #razon {
-  margin-top: 20px;
-  color: #2c3e50;
-  font-weight: bold;
-  font-size: 1.4rem;
-  min-height: 40px;
+  margin-top: 20px; /* Agrega espacio en la parte superior del elemento */
+  color: #2c3e50; /* Establece un color oscuro para el texto */
+  font-weight: bold; /* Muestra el texto en negrita */
+  font-size: 1.4rem; /* Aumenta el tamaño del texto */
+  min-height: 40px; /* Asegura una altura mínima para el elemento, incluso si está vacío */
 }
 
 #historial {
-  max-width: 800px;
-  margin: 30px auto;
-  background: #ffffffcc;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  font-size: 1.3rem;
-  min-height: 100px;
-  overflow-y: auto;
-  line-height: 1.5;
-  user-select: text;
+  max-width: 800px; /* Define un ancho máximo para el historial */
+  margin: 30px auto; /* Centra horizontalmente y agrega margen vertical */
+  background: #ffffffcc; /* Aplica un fondo blanco semitransparente */
+  padding: 15px; /* Aplica espacio interno uniforme */
+  border-radius: 10px; /* Redondea las esquinas */
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); /* Agrega sombra sutil */
+  text-align: left; /* Alinea el texto a la izquierda */
+  font-size: 1.3rem; /* Establece un tamaño de fuente moderado */
+  min-height: 100px; /* Establece una altura mínima para el contenedor */
+  overflow-y: auto; /* Habilita el desplazamiento vertical si el contenido excede la altura */
+  line-height: 1.5; /* Mejora la legibilidad del texto aumentando el espaciado entre líneas */
+  user-select: text; /* Permite seleccionar el contenido con el cursor */
 }
 
 /* En tu archivo CSS */
 .disabled-link {
-  pointer-events: none;
-  opacity: 0.5;
+  pointer-events: none; /* Evita que el enlace se pueda hacer clic */
+  opacity: 0.5; /* Reduce la opacidad para dar apariencia de deshabilitado */
 }
-
