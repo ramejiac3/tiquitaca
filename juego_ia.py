@@ -103,4 +103,3 @@ def obtener_ultima_jugada():
         'jugada': (2, 1),  # Fila 2, columna 1
         'marca': 'X'
     }
-
