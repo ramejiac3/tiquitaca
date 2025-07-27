@@ -1,172 +1,261 @@
 body {
+  /* Establece un color de fondo suave para toda la página */
   background: #f0f4f8;
+  /* Define una fuente moderna y legible */
   font-family: 'Segoe UI', sans-serif;
+  /* Agrega un espacio superior para separar del borde superior del navegador */
   padding-top: 3rem;
 }
 
 .container {
+  /* Define un ancho máximo para el contenedor principal */
   max-width: 1100px;
+  /* Establece un fondo blanco para mayor contraste con el fondo */
   background: white;
+  /* Aplica espacio interno alrededor del contenido */
   padding: 2rem;
+  /* Bordes redondeados para un diseño más amigable */
   border-radius: 15px;
+  /* Agrega sombra para destacar el contenedor del fondo */
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+  /* Espacio inferior para separar del contenido siguiente */
   margin-bottom: 3rem;
 }
 
 h1 {
+  /* Texto en negrita para el encabezado principal */
   font-weight: 700;
+  /* Espacio inferior para separación del siguiente contenido */
   margin-bottom: 2rem;
+  /* Centra el texto horizontalmente */
   text-align: center;
+  /* Color oscuro para mejor visibilidad */
   color: #1e293b;
 }
 
 .btn-back {
+  /* Fija el botón en la esquina superior izquierda */
   position: fixed;
   top: 20px;
   left: 20px;
+  /* Color de fondo del botón */
   background: #64748b;
+  /* Color del texto */
   color: white;
+  /* Negrita para resaltar el botón */
   font-weight: 600;
+  /* Bordes redondeados */
   border-radius: 10px;
+  /* Espaciado interno del botón */
   padding: 0.6rem 1.1rem;
+  /* Elimina borde predeterminado */
   border: none;
+  /* Cursor cambia a puntero al pasar el mouse */
   cursor: pointer;
+  /* Transición suave para efectos visuales */
   transition: 0.3s ease;
+  /* Asegura que esté por encima de otros elementos */
   z-index: 1000;
 }
 
 .btn-back:hover {
+  /* Cambia el color de fondo cuando el usuario pasa el mouse */
   background: #475569;
 }
 
 .badge-eval {
+  /* Negrita para el texto del badge */
   font-weight: 600;
+  /* Tamaño de fuente ligeramente reducido */
   font-size: 0.9rem;
+  /* Espaciado interno en ambos ejes */
   padding: 0.4em 0.7em;
+  /* Bordes redondeados para forma de etiqueta */
   border-radius: 12px;
+  /* Impide que el texto se divida en varias líneas */
   white-space: nowrap;
+  /* Previene selección de texto por el usuario */
   user-select: none;
 }
 
 .badge-Buena {
+  /* Fondo verde para la evaluación positiva */
   background-color: #2ecc71;
+  /* Texto blanco para contraste */
   color: white;
 }
 
 .badge-Mala {
+  /* Fondo rojo para evaluación negativa */
   background-color: #e74c3c;
+  /* Texto blanco para contraste */
   color: white;
 }
 
 .badge-Creativa {
+  /* Fondo naranja para evaluación creativa */
   background-color: #f39c12;
+  /* Texto blanco para contraste */
   color: white;
 }
 
 .badge-Pudo {
+  /* Fondo azul para evaluación neutral o de oportunidad */
   background-color: #3498db;
+  /* Texto blanco para contraste */
   color: white;
 }
 
 pre {
+  /* Permite saltos de línea manteniendo espacios originales */
   white-space: pre-wrap;
+  /* Permite romper palabras largas para ajuste de línea */
   word-break: break-word;
+  /* Color de fondo claro para diferenciar bloques de código */
   background: #f8fafc;
+  /* Espacio interno */
   padding: 0.8rem;
+  /* Bordes redondeados */
   border-radius: 8px;
+  /* Tamaño de fuente más pequeño */
   font-size: 0.9rem;
+  /* Elimina márgenes exteriores */
   margin: 0;
+  /* Altura máxima con scroll si excede */
   max-height: 150px;
+  /* Scroll vertical automático si es necesario */
   overflow-y: auto;
 }
 
 .tablero-mini {
+  /* Usa fuente monoespaciada para simular tablero */
   font-family: monospace;
+  /* Muestra como bloque en línea */
   display: inline-block;
+  /* Fondo blanco para claridad */
   background: #fff;
+  /* Borde simple */
   border: 1px solid #ccc;
+  /* Bordes redondeados */
   border-radius: 6px;
+  /* Espaciado interno */
   padding: 6px 10px;
+  /* Margen superior para separación */
   margin-top: 0.5rem;
+  /* Limita el ancho máximo */
   max-width: 150px;
+  /* Habilita desplazamiento horizontal si excede */
   overflow-x: auto;
 }
 
 .tablero-mini div {
+  /* Usa flexbox para centrar el contenido */
   display: flex;
   justify-content: center;
 }
 
 .tablero-mini span {
+  /* Define ancho uniforme para celdas del tablero */
   width: 1.5rem;
+  /* Centra el texto en cada celda */
   text-align: center;
+  /* Negrita para destacar contenido */
   font-weight: bold;
 }
 
 .razon-tablero {
+  /* Usa flexbox en dirección vertical */
   display: flex;
   flex-direction: column;
+  /* Espacio entre elementos hijos */
   gap: 0.6rem;
 }
 
 #rubricaPanel {
+  /* Panel fijo, inicialmente oculto fuera del área visible */
   position: fixed;
   top: 0;
   right: -400px;
+  /* Define tamaño fijo del panel */
   width: 400px;
   height: 100%;
+  /* Fondo blanco */
   background-color: #ffffff;
+  /* Sombra lateral para separación visual */
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
+  /* Habilita scroll vertical si el contenido es largo */
   overflow-y: auto;
+  /* Transición suave para mostrar/ocultar */
   transition: right 0.4s ease-in-out;
+  /* Espaciado interno */
   padding: 2rem;
+  /* Asegura que esté por encima de otros elementos */
   z-index: 1050;
 }
 
 #rubricaPanel.active {
+  /* Muestra el panel desplazándolo hacia la izquierda */
   right: 0;
 }
 
 .rubrica-entry {
+  /* Espacio inferior entre entradas de la rúbrica */
   margin-bottom: 1.5rem;
 }
 
 .rubrica-entry h5 {
+  /* Título en negrita */
   font-weight: bold;
+  /* Color oscuro para mejor legibilidad */
   color: #1f2937;
 }
 
 .rubrica-entry p {
+  /* Espacio vertical mínimo entre párrafos */
   margin: 0.2rem 0;
+  /* Tamaño de fuente reducido para descripciones */
   font-size: 0.9rem;
 }
 
 .rubrica-toggle-btn {
+  /* Posiciona el botón de alternar a la derecha */
   float: right;
+  /* Espacio inferior para separación */
   margin-bottom: 1rem;
 }
 
-/* Tabla responsiva con scroll horizontal */
+/* Contenedor para hacer tablas desplazables horizontalmente */
 .table-responsive {
+  /* Habilita scroll horizontal si el contenido lo requiere */
   overflow-x: auto;
+  /* Se ajusta al ancho del contenedor padre */
   max-width: 100%;
 }
 
 table.table {
+  /* Define un ancho mínimo para garantizar buena estructura */
   min-width: 900px;
 }
 
- /* Ajustes para que el radar se vea bien y centrado */
+/* Estilos para el contenedor del gráfico de radar */
 #radarContainer {
+  /* Limita el ancho del gráfico */
   max-width: 600px;
+  /* Centra el contenedor horizontalmente */
   margin: 1.5rem auto;
+  /* Color de fondo claro */
   background: #f8f9fa;
+  /* Espaciado interno */
   padding: 1rem 1.5rem;
+  /* Bordes redondeados */
   border-radius: 8px;
+  /* Sombra sutil para profundidad */
   box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
 }
 
 #radarContainer h2 {
+  /* Centra el título del gráfico */
   text-align: center;
+  /* Espacio inferior para separación */
   margin-bottom: 1rem;
 }
