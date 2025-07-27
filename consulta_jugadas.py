@@ -6,11 +6,11 @@ def obtener_jugadas(limit=10):  # Define una función para obtener un número li
     conn = sqlite3.connect(DB_PATH)  # Establece una conexión con la base de datos SQLite
     c = conn.cursor()  # Crea un cursor para ejecutar comandos SQL
 
-    c.execute('''  # Ejecuta una consulta SQL para seleccionar campos específicos de la tabla 'jugadas'
+    c.execute('''  
         SELECT id, id_match, board, move, win, player, model, reason, timestamp, valid, execution_time
         FROM jugadas
-        ORDER BY id ASC  # Ordena las jugadas por ID en orden ascendente
-        LIMIT ?  # Limita la cantidad de resultados devueltos según el parámetro 'limit'
+        ORDER BY id ASC  
+        LIMIT ?  
     ''', (limit,))  # Pasa el valor del límite como parámetro para prevenir inyecciones SQL
 
     resultados = c.fetchall()  # Recupera todos los resultados de la consulta en una lista de tuplas
