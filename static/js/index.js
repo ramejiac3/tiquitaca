@@ -195,3 +195,4 @@ window.addEventListener("DOMContentLoaded", () => {
   const cargado = cargarEstado(); // Intenta restaurar el estado anterior
   if (!cargado) reiniciar();     // Si no hay, reinicia desde cero
 });
+
