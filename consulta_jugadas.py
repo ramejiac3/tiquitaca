@@ -22,3 +22,4 @@ if __name__ == '__main__':  # Punto de entrada principal del script cuando se ej
     jugadas = obtener_jugadas(5)  # Llama a la función para obtener las primeras 5 jugadas registradas
     for j in jugadas:  # Itera sobre cada jugada obtenida
         print(j)  # Imprime la información de la jugada en la consola
+
