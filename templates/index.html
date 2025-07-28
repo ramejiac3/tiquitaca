@@ -1,42 +1,46 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html> <!-- Define el tipo de documento como HTML5 -->
+<html lang="es"> <!-- Inicia el documento HTML y especifica que el idioma principal es español -->
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Tres en Raya IA</title>
-  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+  <meta charset="UTF-8" /> <!-- Establece la codificación de caracteres en UTF-8 para soportar caracteres especiales -->
+  <title>Tres en Raya IA</title> <!-- Define el título que aparecerá en la pestaña del navegador -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" /> <!-- Enlaza el ícono que se muestra en la pestaña del navegador -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" /> <!-- Carga la hoja de estilos CSS desde la carpeta estática del proyecto Flask -->
 </head>
 
-<body>
-  <h1>🤖 Tres en Raya con IA</h1>
-  <table id="tablero" aria-label="Tablero de Tres en Raya"></table>
+<body> <!-- Inicia el cuerpo del documento HTML, donde se representa el contenido visible para el usuario -->
+  <h1>🤖 Tres en Raya con IA</h1> <!-- Encabezado principal de la página con un emoji representando IA -->
+
+  <table id="tablero" aria-label="Tablero de Tres en Raya"></table> <!-- Tabla que representará visualmente el tablero del juego, con etiqueta accesible para lectores de pantalla -->
+
   <!-- Sección donde se mostrará la razón o explicación de la jugada del modelo -->
-  <div id="razon" role="status" aria-live="polite"></div>
+  <div id="razon" role="status" aria-live="polite"></div> <!-- Contenedor dinámico para mostrar explicaciones generadas por la IA con atributos para accesibilidad -->
+
   <!-- Juega una jugada a la vez -->
-  <button onclick="jugarTurno()">Jugar paso a paso</button>
+  <button onclick="jugarTurno()">Jugar paso a paso</button> <!-- Botón que activa una función JavaScript para ejecutar una jugada individual del juego -->
 
   <!-- Ejecuta todas las jugadas automáticamente -->
-  <button onclick="jugarAuto()">Jugar automático</button>
+  <button onclick="jugarAuto()">Jugar automático</button> <!-- Botón que activa la función para ejecutar automáticamente todas las jugadas de una partida -->
 
   <!-- Cambia a una nueva partida del conjunto de jugadas -->
-  <button onclick="siguientePartida()">Siguiente partida</button>
+  <button onclick="siguientePartida()">Siguiente partida</button> <!-- Botón que carga una nueva partida predefinida del conjunto -->
 
   <!-- Reinicia el estado actual del tablero -->
-  <button onclick="reiniciar()">Reiniciar</button>
+  <button onclick="reiniciar()">Reiniciar</button> <!-- Botón que reinicia el tablero al estado inicial sin cambiar de partida -->
 
   <!-- Div para mostrar mensajes de error al usuario -->
-  <div id="error-msg" role="alert"></div>
+  <div id="error-msg" role="alert"></div> <!-- Sección para mostrar mensajes de error de forma accesible, con rol de alerta para lectores de pantalla -->
 
-  <h3 style="font-size: 1.2rem">📜 Historial de jugadas</h3>
-  <div id="historial" aria-live="polite"></div>
+  <h3 style="font-size: 1.2rem">📜 Historial de jugadas</h3> <!-- Subtítulo con un estilo personalizado para la sección del historial de jugadas -->
+
+  <div id="historial" aria-live="polite"></div> <!-- Contenedor dinámico donde se listarán las jugadas realizadas durante la partida, con soporte accesible -->
 
   <!-- Botón para acceder a la página de evaluación de la última jugada -->
   <a href="/evaluar" id="btn-evaluar" role="button" aria-label="Evaluar última jugada">
     Evaluar Última Jugada
-  </a>
-  
-  <script src="/static/js/index.js"></script>
+  </a> <!-- Enlace con apariencia de botón que lleva a la página de evaluación de la última jugada realizada -->
+
+  <script src="/static/js/index.js"></script> <!-- Enlace al archivo JavaScript principal que contiene la lógica del juego y manipulación del DOM -->
 </body>
 
-</html>
+</html> <!-- Finaliza el documento HTML -->
