@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Historial de Evaluaciones - Tres en Raya IA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" /> <!-- Define la codificación de caracteres como UTF-8 -->
+  <title>Historial de Evaluaciones - Tres en Raya IA</title> <!-- Título de la página visible en la pestaña del navegador -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- Configura la escala para dispositivos móviles -->
 
   <!-- Bootstrap CSS desde CDN para diseño responsivo -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -20,41 +20,42 @@
   <button class="btn-back" onclick="window.location.href='/evaluar'">← Regresar</button>
 
   <div class="container">
-    <!-- Título principal -->
+    <!-- Título principal de la sección -->
     <h1>Historial de Evaluaciones</h1>
 
-    <!-- Botón para mostrar u ocultar la rúbrica de evaluación -->
+    <!-- Botón que permite mostrar u ocultar la rúbrica de evaluación -->
     <button class="btn btn-outline-secondary rubrica-toggle-btn" onclick="toggleRubrica()">Ver Rúbrica</button>
 
-    <!-- Botón para volver a evaluar -->
+    <!-- Enlace para regresar a la página de evaluación -->
     <a href="/evaluar" class="btn btn-primary mb-3">Volver a evaluar</a>
 
-    <!-- Campo de texto para filtrar por jugador o modelo -->
+    <!-- Campo de texto para filtrar evaluaciones por modelo o jugador -->
     <input type="text" id="filtro" class="form-control mb-3" placeholder="Buscar por modelo o jugador..." />
 
-    <!-- Tabla responsiva que contiene el historial de evaluaciones -->
+    <!-- Contenedor responsivo para la tabla del historial de evaluaciones -->
     <div class="table-responsive">
+      <!-- Tabla con estilos de Bootstrap que muestra las evaluaciones -->
       <table class="table table-bordered align-middle table-striped" role="table" aria-label="Historial de evaluaciones">
         <thead class="table-dark text-center">
           <tr>
-            <th>Fecha</th>
-            <th>Jugador</th>
-            <th>Modelo</th>
-            <th>Movimiento</th>
-            <th>Evaluación</th>
-            <th>Razón y Tablero</th>
+            <th>Fecha</th> <!-- Columna para la fecha de evaluación -->
+            <th>Jugador</th> <!-- Columna para el nombre del jugador -->
+            <th>Modelo</th> <!-- Columna para el modelo utilizado -->
+            <th>Movimiento</th> <!-- Columna para el movimiento realizado -->
+            <th>Evaluación</th> <!-- Columna para la valoración de la jugada -->
+            <th>Razón y Tablero</th> <!-- Columna con explicación y estado del tablero -->
           </tr>
         </thead>
         <tbody>
-          <!-- Iteración sobre cada evaluación enviada por Flask -->
+          <!-- Ciclo que itera sobre cada evaluación enviada desde Flask -->
           {% for ev in evaluaciones %}
           <tr>
-            <td>{{ ev.timestamp }}</td>
-            <td>{{ ev.jugador | upper }}</td>
-            <td>{{ ev.modelo }}</td>
-            <td>{{ ev.movimiento_legible }}</td>
+            <td>{{ ev.timestamp }}</td> <!-- Muestra la fecha y hora de la evaluación -->
+            <td>{{ ev.jugador | upper }}</td> <!-- Muestra el nombre del jugador en mayúsculas -->
+            <td>{{ ev.modelo }}</td> <!-- Muestra el modelo que hizo el movimiento -->
+            <td>{{ ev.movimiento_legible }}</td> <!-- Muestra el movimiento en formato legible -->
             <td class="text-center">
-              <!-- Etiqueta visual con color según tipo de evaluación -->
+              <!-- Contenedor para la etiqueta visual de evaluación con color según el tipo -->
               <div style="display: flex; flex-direction: column; align-items: center;">
                 <span class="badge badge-eval
                     {% if ev.evaluacion == 'Buena' %}badge-Buena
@@ -66,24 +67,27 @@
                           {% elif ev.evaluacion == 'Creativa' %}Creativa: movimiento original o inesperado
                           {% else %}Puede mejorar: movimiento válido pero con errores
                           {% endif %}">
-                  {{ ev.evaluacion }}
+                  {{ ev.evaluacion }} <!-- Texto que indica el tipo de evaluación -->
                 </span>
               </div>
             </td>
             <td>
-              <!-- Contenedor de la explicación y tablero -->
+              <!-- Contenedor para mostrar la explicación y el estado del tablero -->
               <div class="razon-tablero">
-                <!-- Texto con la razón de la evaluación -->
+                <!-- Muestra la explicación de la evaluación o texto por defecto -->
                 <pre>{{ ev.razon_texto or "Sin explicación" }}</pre>
 
-                <!-- Renderizado del tablero, ya sea string o lista -->
+                <!-- Condicional que verifica si el tablero es un string o una lista -->
                 {% if ev.tablero is string %}
+                <!-- Muestra el tablero como texto plano -->
                 <pre>{{ ev.tablero }}</pre>
                 {% else %}
+                <!-- Muestra un tablero miniatura en formato visual -->
                 <div class="tablero-mini">
                   {% for fila in ev.tablero %}
                   <div>
                     {% for celda in fila %}
+                    <!-- Muestra cada celda, reemplazando 'b' por '-' para visualización -->
                     <span>{{ celda if celda != 'b' else '-' }}</span>
                     {% endfor %}
                   </div>
@@ -94,7 +98,7 @@
             </td>
           </tr>
           {% else %}
-          <!-- Mensaje por defecto si no hay evaluaciones -->
+          <!-- Mensaje que aparece si no hay evaluaciones registradas -->
           <tr>
             <td colspan="6" class="text-center fst-italic">No hay evaluaciones aún.</td>
           </tr>
@@ -103,9 +107,10 @@
       </table>
     </div>
 
-    <!-- Gráfico tipo radar con promedios por dimensión -->
+    <!-- Contenedor para el gráfico tipo radar que resume las evaluaciones -->
     <div id="radarContainer" aria-label="Gráfico radar resumen de evaluaciones">
       <h2>Resumen Promedio por Dimensión</h2>
+      <!-- Canvas donde se renderiza el gráfico radar -->
       <canvas id="graficoRadar" aria-label="Gráfico radar evaluaciones" role="img"></canvas>
     </div>
   </div>
@@ -114,7 +119,7 @@
   <div id="rubricaPanel" aria-hidden="true" role="region" aria-label="Rúbrica de evaluación">
     <h3>Rúbrica de Evaluación</h3>
     <div id="rubricaContent">
-      <!-- Rúbrica con 7 dimensiones evaluativas -->
+      <!-- Ciclo para mostrar las 7 dimensiones evaluativas con sus niveles -->
       {% for r in [
         ("Comprensión de Reglas", "Viola reglas básicas: casilla ocupada o fuera del tablero.", "Cumple reglas básicas, pero omite situaciones menos evidentes.", "Siempre movimientos legales, respeta todas las reglas del turno."),
         ("Validez y Legalidad", "Movimiento inválido o ilegal.", "Movimiento válido sin análisis profundo.", "Válido y elegido tras un análisis completo."),
@@ -125,10 +130,10 @@
         ("Adaptabilidad", "Ignora cambios previos.", "Se adapta de forma básica o tardía.", "Rápida adaptación y ajuste efectivo.")
       ] %}
       <div class="rubrica-entry">
-        <h5>{{ r[0] }}</h5>
-        <p><strong>1:</strong> {{ r[1] }}</p>
-        <p><strong>2:</strong> {{ r[2] }}</p>
-        <p><strong>3:</strong> {{ r[3] }}</p>
+        <h5>{{ r[0] }}</h5> <!-- Nombre de la dimensión -->
+        <p><strong>1:</strong> {{ r[1] }}</p> <!-- Descripción nivel 1 -->
+        <p><strong>2:</strong> {{ r[2] }}</p> <!-- Descripción nivel 2 -->
+        <p><strong>3:</strong> {{ r[3] }}</p> <!-- Descripción nivel 3 -->
       </div>
       {% endfor %}
     </div>
@@ -136,14 +141,14 @@
 
   <!-- Variables globales pasadas desde Flask para uso en JS -->
   <script>
-    window.dimensiones = {{ dimensiones | tojson }};  // Nombres de las dimensiones
-    window.promedios = {{ promedios | tojson }};      // Promedios por dimensión
+    window.dimensiones = {{ dimensiones | tojson }};  // Asigna al objeto global los nombres de las dimensiones evaluativas
+    window.promedios = {{ promedios | tojson }};      // Asigna los promedios por dimensión para uso en gráficos o análisis
   </script>
 
-  <!-- Script principal de funcionalidades JS (gráfico, filtro, etc.) -->
+  <!-- Script principal de funcionalidades JS para interacción, gráficos y filtrado -->
   <script src="/static/js/historial.js"></script>
 
-  <!-- Script Bootstrap JS para funcionalidades interactivas -->
+  <!-- Script Bootstrap JS para funcionalidades interactivas y componentes -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
