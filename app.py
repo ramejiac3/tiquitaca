@@ -1,3 +1,34 @@
+"""
+===============================================================
+app.py - Aplicación Flask para Juego de Tres en Raya con Evaluación
+===============================================================
+
+Este archivo contiene el backend principal de la aplicación, 
+integrando la lógica del juego, la evaluación automática de jugadas,
+la persistencia de datos en base de datos SQLite y archivos JSON, 
+y la generación de estadísticas y gráficos.
+
+FUNCIONALIDADES PRINCIPALES:
+- API REST con Flask para gestionar partidas, jugadas y evaluaciones.
+- Motor de IA para determinar jugadas automáticas (módulo juego_ia.py).
+- Evaluación automática y humana de jugadas con una rúbrica definida.
+- Almacenamiento en base de datos SQLite usando SQLAlchemy.
+- Generación de reportes visuales (tableros en PNG y gráficos).
+- Gestión de sesiones de usuario con Flask.
+
+REQUISITOS:
+    - Python 3.9+
+    - Flask
+    - Flask-SQLAlchemy
+    - Matplotlib
+    - NumPy
+
+EJECUCIÓN:
+    $ python app.py
+    o con el comando Flask:
+    $ flask --app app.py run
+"""
+
 # --- Configuración de librerías y entorno para uso sin GUI ---
 import matplotlib
 matplotlib.use('Agg')  # Configura matplotlib para usar backend sin interfaz gráfica, útil en servidores o scripts
