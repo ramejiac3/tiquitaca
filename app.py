@@ -764,3 +764,4 @@ def grafico_radar():
 if __name__ == "__main__":
     # Inicia la aplicación Flask en modo debug para desarrollo
     app.run(debug=True)
+
