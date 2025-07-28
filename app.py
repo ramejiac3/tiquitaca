@@ -54,7 +54,7 @@ from flask_sqlalchemy import SQLAlchemy  # ORM para manejar base de datos desde 
 db = SQLAlchemy()  # Crea instancia de SQLAlchemy para manejar base de datos
 app = Flask(__name__)  # Crea instancia de la aplicación Flask
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///evaluaciones.db'  # Define la ruta y tipo de base de datos SQLite local
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///evaluaciones.db'  # Define la ruta y tipo de base de datos SQLite
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactiva seguimiento de cambios para mejorar rendimiento
 db.init_app(app)  # Inicializa la base de datos con la app Flask
 
