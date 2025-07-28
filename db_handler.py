@@ -56,4 +56,3 @@ def create_tables():  # Función que crea las tablas necesarias en la base de da
 # Llama a la función para crear las tablas solo una vez al ejecutar este archivo directamente
 if __name__ == '__main__':
     create_tables()  # Ejecuta la función para crear las tablas en la base de datos
-
