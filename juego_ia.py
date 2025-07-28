@@ -85,3 +85,4 @@ def obtener_ultima_jugada():
         'jugada': (2, 1),  # Coordenadas de la jugada realizada (fila 2, columna 1)
         'marca': 'X'  # Marca (jugador) que realizó la jugada
     }
+
