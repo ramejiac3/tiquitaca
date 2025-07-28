@@ -1,58 +1,47 @@
 # --- Configuración de librerías y entorno para uso sin GUI ---
 import matplotlib
-matplotlib.use('Agg')  # Permite generar gráficos sin necesidad de mostrar una ventana (útil en servidores)
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-import json
-from datetime import datetime
+matplotlib.use('Agg')  # Configura matplotlib para usar backend sin interfaz gráfica, útil en servidores o scripts
+import matplotlib.pyplot as plt  # Importa módulo para generación de gráficos
+import numpy as np  # Importa NumPy para operaciones numéricas y matrices
+import os  # Importa módulo para manejo de sistema operativo y archivos
+import json  # Importa módulo para manejo de datos JSON
+from datetime import datetime  # Importa clase para manejo de fechas y horas
 
 # --- Flask y componentes de aplicación web ---
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+# Importa Flask y funciones para crear app web, manejar plantillas, solicitudes HTTP, respuestas JSON, redirecciones y sesiones
 
 # --- Funciones del juego (lógica central separada) ---
 from juego_ia import buscar_jugada, inicializar_tablero, revisar_ganador, reiniciar_indice, indice_actual
+# Importa funciones clave para lógica del juego: obtener jugada IA, crear tablero, verificar ganador, reiniciar y obtener índice actual
 
 # --- Base de datos con SQLAlchemy ---
-from flask import Flask      
-from flask import Flask, send_file
-from flask_sqlalchemy import SQLAlchemy
-# from db_handler import create_connection  # Puedes mantener esto si lo usas en otro lado
+from db_handler import create_connection  # Función para crear conexión a base de datos SQLite
+from flask_sqlalchemy import SQLAlchemy  # ORM para manejar base de datos desde Flask
 
 # --- Inicialización de Flask y configuración de base de datos ---
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///evaluaciones.db'  # Base de datos SQLite local
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactiva el seguimiento de cambios para eficiencia
+db = SQLAlchemy()  # Crea instancia de SQLAlchemy para manejar base de datos
+app = Flask(__name__)  # Crea instancia de la aplicación Flask
 
-db = SQLAlchemy()
-db.init_app(app)
-    
-# --- Modelo de datos SQLAlchemy para evaluaciones ---
-class Evaluacion(db.Model):
-    __tablename__ = 'evaluacion'
-    id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.String(50), nullable=False)
-    jugador = db.Column(db.String(50), nullable=False)
-    modelo = db.Column(db.String(50), nullable=False)
-    movimiento = db.Column(db.Text, nullable=False)
-    evaluacion_automatica = db.Column(db.Text, nullable=False)
-    evaluacion_humana = db.Column(db.Text, nullable=True)
-    razon_automatica = db.Column(db.Text, nullable=True)
-    razon_humana = db.Column(db.Text, nullable=True)
-###
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///evaluaciones.db'  # Define la ruta y tipo de base de datos SQLite local
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactiva seguimiento de cambios para mejorar rendimiento
+db.init_app(app)  # Inicializa la base de datos con la app Flask
 
-@app.route('/descargar-db')
-def descargar_db():
-    try:
-        return send_file('evaluaciones.db', as_attachment=True)
-    except Exception as e:
-        return f"Error al descargar la base de datos: {str(e)}", 500
-# Crear todas las tablas si no existen
+# Crear todas las tablas definidas en modelos si no existen aún
 with app.app_context():
     db.create_all()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# --- Modelo de datos SQLAlchemy para evaluaciones ---
+class Evaluacion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)  # Clave primaria autoincremental
+    match_id = db.Column(db.String(50), nullable=False)  # Identificador único de la partida
+    jugador = db.Column(db.String(50), nullable=False)  # Nombre o identificador del jugador
+    modelo = db.Column(db.String(50), nullable=False)  # Modelo de IA que generó la jugada
+    movimiento = db.Column(db.Text, nullable=False)  # Movimiento realizado en formato JSON como texto
+    evaluacion_automatica = db.Column(db.Text, nullable=False)  # Evaluación automática almacenada en texto JSON
+    evaluacion_humana = db.Column(db.Text, nullable=True)  # Evaluación humana (opcional) en texto JSON
+    razon_automatica = db.Column(db.Text, nullable=True)  # Razón o explicación de evaluación automática
+    razon_humana = db.Column(db.Text, nullable=True)  # Razón o explicación de evaluación humana
 
 # --- Rúbrica de evaluación automática: debe coincidir con la del frontend JS ---
 DIMENSIONES = [
@@ -63,41 +52,41 @@ DIMENSIONES = [
     "Coherencia Explicativa",
     "Claridad Lingüística",
     "Adaptabilidad"
-]
+]  # Lista de dimensiones utilizadas para evaluar automáticamente las jugadas
 
 # --- Clave secreta para gestionar sesiones de usuario ---
-app.secret_key = os.urandom(24)
+app.secret_key = os.urandom(24)  # Genera una clave secreta aleatoria para proteger sesiones en Flask
 
 # --- Variables globales para el estado del juego (simples mientras no haya múltiples sesiones simultáneas) ---
-tablero = inicializar_tablero()
-turno_actual = "x"
-turno_numero = 1
-historial = []
+tablero = inicializar_tablero()  # Inicializa el tablero vacío
+turno_actual = "x"  # Define que el primer turno es del jugador "x"
+turno_numero = 1  # Contador del número de turno o movimiento
+historial = []  # Lista para almacenar el historial de jugadas
 
 # --- Rutas principales del servidor Flask ---
 
 @app.route("/")
 def index():
-    # Renderiza la página principal del juego con el tablero vacío
-    tablero_vacio = [["" for _ in range(3)] for _ in range(3)]
-    return render_template("index.html", tablero=tablero_vacio)
+    # Renderiza la página principal del juego con un tablero vacío para iniciar partida
+    tablero_vacio = [["" for _ in range(3)] for _ in range(3)]  # Crea matriz 3x3 vacía
+    return render_template("index.html", tablero=tablero_vacio)  # Envía tablero a plantilla HTML
 
 @app.route("/contador_partidas", methods=["GET"])
 def contador_partidas():
-    # Devuelve el índice actual de partidas como contador
+    # Devuelve el índice actual de partidas jugadas en formato JSON
     return jsonify({"partidas": indice_actual})
 
 @app.route("/estado", methods=["GET"])
 def estado():
-    # Devuelve el estado actual del tablero y el jugador en turno
+    # Proporciona el estado actual del tablero y el jugador que tiene el turno
     return jsonify({"tablero": tablero, "turno": turno_actual})
 
 @app.route("/info_jugada_sesion", methods=["GET"])
 def info_jugada_sesion():
-    # Devuelve información de la última jugada guardada en la sesión
-    jugador = session.get("turno_actual", "desconocido").upper()
-    modelo = session.get("modelo", "desconocido")
-    movimiento = session.get("movimiento", [])
+    # Retorna información de la última jugada almacenada en la sesión del usuario
+    jugador = session.get("turno_actual", "desconocido").upper()  # Obtiene jugador de sesión o "desconocido"
+    modelo = session.get("modelo", "desconocido")  # Obtiene modelo IA de sesión o "desconocido"
+    movimiento = session.get("movimiento", [])  # Obtiene movimiento guardado o lista vacía
     return jsonify({
         "jugador": jugador,
         "modelo": modelo,
@@ -106,150 +95,135 @@ def info_jugada_sesion():
 
 @app.route("/reiniciar", methods=["POST"])
 def reiniciar():
-    # Reinicia el estado global del juego (tablero, turno, historial)
+    # Reinicia el estado global del juego, incluyendo tablero, turno y historial
     global tablero, turno_actual, turno_numero, historial
-    tablero = inicializar_tablero()
-    turno_actual = "x"
-    turno_numero = 1
-    historial = []
-    reiniciar_indice()
-    return jsonify({"estado": "reiniciado"})
+    tablero = inicializar_tablero()  # Nuevo tablero vacío
+    turno_actual = "x"  # Primer turno reiniciado a "x"
+    turno_numero = 1  # Número de turno reiniciado
+    historial = []  # Limpia historial de jugadas
+    reiniciar_indice()  # Reinicia contador global de partidas
+    return jsonify({"estado": "reiniciado"})  # Confirma reinicio
 
 @app.route("/jugar_turno", methods=["POST"])
 def jugar_turno():
-    # Ejecuta una jugada del modelo IA y evalúa automáticamente
+    # Ejecuta el turno de la IA, realiza jugada, evalúa, guarda y actualiza estado
     global tablero, turno_actual, turno_numero, historial
 
-    movimiento, razon, modelo = buscar_jugada(tablero, turno_actual)
+    movimiento, razon, modelo = buscar_jugada(tablero, turno_actual)  # Obtiene jugada de IA y razón
     
     try:
-        fila = int(movimiento[1]) - 1
-        col = int(movimiento[2]) - 1
+        fila = int(movimiento[1]) - 1  # Convierte coordenada fila a índice 0-based
+        col = int(movimiento[2]) - 1  # Convierte coordenada columna a índice 0-based
     except (IndexError, ValueError):
+        # Maneja errores si formato de movimiento es inválido
         return jsonify({"error": "Movimiento inválido.", "tablero": tablero})
 
     if not (0 <= fila < 3 and 0 <= col < 3):
+        # Verifica que las coordenadas estén dentro del tablero
         return jsonify({"error": "Coordenadas fuera de rango.", "tablero": tablero})
 
-    if tablero[fila][col] == "b":
-        tablero[fila][col] = turno_actual
-        ganador = revisar_ganador(tablero)
+    if tablero[fila][col] == "b":  # Verifica que la celda esté vacía (b = blank)
+        tablero[fila][col] = turno_actual  # Coloca la marca del jugador actual
+        ganador = revisar_ganador(tablero)  # Comprueba si hay ganador tras movimiento
 
+        # Construye diccionario con información completa de la jugada
         jugada = {
             "jugador": turno_actual,
             "movimiento": movimiento,
             "razon": razon,
             "modelo": modelo,
             "ganador": ganador,
-            "tablero": [row[:] for row in tablero],
+            "tablero": [row[:] for row in tablero],  # Copia profunda del tablero actual
             "evaluada": False,
             "match_id": turno_numero
         }
 
-        # Evaluación automática según la rúbrica definida
+        # Realiza evaluación automática de la jugada según rúbrica
         jugada["evaluacion"] = evaluar_jugada_rubrica(jugada)
 
-        historial.append(jugada)
-        guardar_jugada_en_archivo(jugada)
+        historial.append(jugada)  # Añade jugada al historial en memoria
+        guardar_jugada_en_archivo(jugada)  # Guarda jugada en archivo de texto para registro
 
-        # Actualiza el archivo global de jugadas
+        # Actualiza archivo JSON global de jugadas con la nueva jugada
         jugadas = cargar_jugadas_desde_archivo()
         jugadas.append(jugada)
         guardar_jugadas_en_archivo(jugadas)
 
-        # Actualiza sesión con la jugada actual
+        # Actualiza la sesión con datos actuales del juego
         session["tablero"] = tablero
         session["turno_actual"] = turno_actual
         session["movimiento"] = movimiento
         session["razon"] = razon
         session["modelo"] = modelo
 
-        # Guarda una imagen PNG del tablero para revisión visual
-        guardar_imagen_tablero(tablero, turno_numero)
-        turno_numero += 1
+        guardar_imagen_tablero(tablero, turno_numero)  # Guarda imagen visual del tablero para análisis
+        turno_numero += 1  # Incrementa contador de turno
 
         if not ganador:
-            # Alterna turno entre "x" y "o"
+            # Cambia turno entre jugadores "x" y "o"
             turno_actual = "o" if turno_actual == "x" else "x"
 
-        return jsonify(jugada)
+        return jsonify(jugada)  # Devuelve respuesta JSON con datos de la jugada
     else:
-        # Jugada ilegal detectada (casilla ya ocupada)
+        # Maneja caso de jugada inválida si la celda ya está ocupada
         return jsonify({
             "error": f"Jugada ilegal detectada por el modelo ({turno_actual}). Movimiento: {movimiento}",
             "tablero": tablero
         })
 
-
 @app.route("/siguiente_partida", methods=["POST"])
 def siguiente_partida():
     global tablero, turno_actual, turno_numero, historial, indice_actual
 
-    # Incrementa el índice global de partidas para llevar la cuenta
-    indice_actual += 1
+    indice_actual += 1  # Incrementa contador global de partidas jugadas
     
-    # Reinicia el tablero vacío para una nueva partida
-    tablero = inicializar_tablero()
-    
-    # Reinicia el jugador actual al que le toca (X empieza)
-    turno_actual = "x"
-    
-    # Reinicia el número de turno (movimiento)
-    turno_numero = 1
-    
-    # Limpia el historial de movimientos para la nueva partida
-    historial = []
+    tablero = inicializar_tablero()  # Reinicia tablero vacío
+    turno_actual = "x"  # Reinicia turno a jugador "x"
+    turno_numero = 1  # Reinicia contador de turnos
+    historial = []  # Limpia historial de jugadas
 
-    # Devuelve confirmación en formato JSON
-    return jsonify({"ok": True, "mensaje": "Partida reiniciada y siguiente jugada preparada."})
-
+    return jsonify({"ok": True, "mensaje": "Partida reiniciada y siguiente jugada preparada."})  # Confirma reinicio
 
 @app.route("/verificar", methods=["GET"])
 def verificar():
-    # Crea una matriz 3x3 vacía para reconstruir el tablero desde el historial
-    reconstruido = [["b"] * 3 for _ in range(3)]
+    # Reconstruye el tablero paso a paso desde el historial para validar consistencia
+    reconstruido = [["b"] * 3 for _ in range(3)]  # Inicializa tablero vacío para reconstrucción
     
-    # Recorre el historial de jugadas para reconstruir el tablero paso a paso
     for jugada in historial:
         jugador = jugada.get("jugador")
         movimiento = jugada.get("movimiento")
         if not movimiento or len(movimiento) < 3:
-            continue
+            continue  # Ignora jugadas mal formadas
         try:
-            fila = int(movimiento[1]) - 1  # Convierte a índice de matriz (0-based)
-            col = int(movimiento[2]) - 1
-            reconstruido[fila][col] = jugador  # Marca la posición con el jugador correspondiente
+            fila = int(movimiento[1]) - 1  # Calcula índice fila 0-based
+            col = int(movimiento[2]) - 1  # Calcula índice columna 0-based
+            reconstruido[fila][col] = jugador  # Marca jugada en tablero reconstruido
         except (IndexError, ValueError):
-            # Si el movimiento está mal formado, lo ignora y sigue
+            # Ignora errores en formato de movimiento y sigue
             continue
 
-    # Compara el tablero reconstruido con el estado global actual para verificar consistencia
-    coincide = reconstruido == tablero
-    ahora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    coincide = reconstruido == tablero  # Compara si el tablero reconstruido coincide con el actual
+    ahora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Obtiene fecha y hora actual para registro
 
-    # Crea carpeta para guardar resultados de verificación si no existe
     if not os.path.exists("verificaciones"):
-        os.makedirs("verificaciones")
+        os.makedirs("verificaciones")  # Crea carpeta para almacenar resultados si no existe
 
     resultado = {
         "fecha": ahora,
         "tablero_actual": tablero,
         "reconstruido_desde_historial": reconstruido,
-        "coincide": coincide  # True si ambos tableros son idénticos
+        "coincide": coincide  # Indica si la reconstrucción es consistente
     }
 
-    # Guarda resultado en archivo JSON para auditoría/debug
     with open("verificaciones/comparacion_tablero.json", "w", encoding="utf-8") as f:
-        json.dump(resultado, f, indent=4, ensure_ascii=False)
+        json.dump(resultado, f, indent=4, ensure_ascii=False)  # Guarda resultado en archivo JSON
 
-    # Devuelve resultado de la verificación en JSON
-    return jsonify(resultado)
-
+    return jsonify(resultado)  # Retorna resultado de la verificación en formato JSON
 
 ### FUNCIONES AUXILIARES ###
 
 def guardar_jugada_en_archivo(jugada):
-    # Guarda un registro legible de la jugada con fecha y detalles en un archivo de texto
+    # Registra jugada con fecha y detalles en un archivo de texto para auditoría
     ruta = "historial_jugadas.txt"
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(ruta, "a", encoding="utf-8") as f:
@@ -258,35 +232,33 @@ def guardar_jugada_en_archivo(jugada):
                 f"Razón: {jugada['razon']}, "
                 f"Ganador: {jugada['ganador']}\n")
 
-
 def guardar_imagen_tablero(tablero, turno):
-    # Guarda una imagen PNG visual del tablero con matplotlib, resaltando las marcas de los jugadores
+    # Guarda una imagen PNG que representa el tablero actual con marcas de jugadores visibles
     if not os.path.exists("tableros"):
-        os.makedirs("tableros")
+        os.makedirs("tableros")  # Crea carpeta para guardar imágenes si no existe
 
-    fig, ax = plt.subplots(figsize=(3, 3))
-    ax.set_xticks(np.arange(3))
-    ax.set_yticks(np.arange(3))
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    ax.grid(True)  # Dibuja la cuadrícula del tablero
+    fig, ax = plt.subplots(figsize=(3, 3))  # Crea figura y ejes para dibujo
+    ax.set_xticks(np.arange(3))  # Configura ticks en eje x
+    ax.set_yticks(np.arange(3))  # Configura ticks en eje y
+    ax.set_xticklabels([])  # Oculta etiquetas eje x
+    ax.set_yticklabels([])  # Oculta etiquetas eje y
+    ax.grid(True)  # Muestra cuadrícula para simular tablero
 
     for i in range(3):
         for j in range(3):
             cell = tablero[i][j]
-            if cell != "b":  # "b" es celda vacía
+            if cell != "b":  # Si la celda no está vacía
                 ax.text(j, 2 - i, cell.upper(), ha="center", va="center", fontsize=28,
-                        color="#e74c3c" if cell == "x" else "#2980b9")  # Rojo para X, azul para O
+                        color="#e74c3c" if cell == "x" else "#2980b9")  # Dibuja "X" rojo o "O" azul en celda
 
-    plt.tight_layout()
-    nombre = f"tableros/turno_{turno:02d}.png"
-    plt.savefig(nombre)  # Guarda imagen en carpeta tableros
-    plt.close()
-
+    plt.tight_layout()  # Ajusta layout para evitar recortes
+    nombre = f"tableros/turno_{turno:02d}.png"  # Define nombre de archivo con número de turno
+    plt.savefig(nombre)  # Guarda imagen en archivo PNG
+    plt.close()  # Cierra figura para liberar memoria
 
 def evaluar_jugada_rubrica(jugada):
-    # Evalúa automáticamente la jugada con base en la explicación (razón) usando palabras clave
-    razon = str(jugada.get("razon", "")).lower()
+    # Evalúa la jugada automáticamente basándose en palabras clave en la explicación de la jugada
+    razon = str(jugada.get("razon", "")).lower()  # Obtiene texto de razón en minúsculas
     return {
         "Comprensión de Reglas": 3 if "legal" in razon or "válido" in razon else 2,
         "Validez y Legalidad": 3 if "válido" in razon else 2,
@@ -295,127 +267,116 @@ def evaluar_jugada_rubrica(jugada):
         "Coherencia Explicativa": 3 if "porque" in razon or "ya que" in razon else 2,
         "Claridad Lingüística": 3 if len(razon) > 15 else 2,
         "Adaptabilidad": 3 if "respuesta" in razon or "ajusté" in razon else 2
-    }
-
+    }  # Retorna diccionario con puntajes para cada dimensión
 
 def cargar_jugadas_desde_archivo():
-    # Carga lista de jugadas desde archivo JSON si existe
+    # Carga lista de jugadas desde archivo JSON si existe, retorna lista vacía si no
     if os.path.exists("jugadas.json"):
         with open("jugadas.json", "r") as f:
-            return json.load(f)
-    return []
-
+            return json.load(f)  # Carga contenido JSON como lista de jugadas
+    return []  # Retorna lista vacía si no existe archivo
 
 def guardar_jugadas_en_archivo(jugadas):
-    # Guarda la lista completa de jugadas en formato JSON indentado para fácil lectura
+    # Guarda lista completa de jugadas en archivo JSON con indentación para legibilidad
     with open("jugadas.json", "w") as f:
         json.dump(jugadas, f, indent=2)
 
-
 def cargar_evaluaciones_desde_archivo():
-    # Lee evaluaciones línea por línea desde archivo JSON (cada línea un JSON independiente)
+    # Lee archivo de evaluaciones JSON donde cada línea es un JSON independiente
     evaluaciones = []
     try:
         with open("evaluaciones.json", "r", encoding="utf-8") as f:
             for linea in f:
-                ev = json.loads(linea)  # Convierte JSON string a dict
-                print(type(ev))  # Debug: debe ser dict
+                ev = json.loads(linea)  # Convierte línea JSON a diccionario
+                print(type(ev))  # Debug: imprime tipo de objeto (debe ser dict)
                 evaluaciones.append(ev)
     except FileNotFoundError:
-        # Si no existe el archivo, devuelve lista vacía
-        pass
+        pass  # Si archivo no existe, simplemente retorna lista vacía
     return evaluaciones
 
-
 def guardar_evaluacion_en_archivo(evaluacion):
-    # Carga evaluaciones previas, añade la nueva y guarda todo el conjunto
+    # Carga evaluaciones previas, añade una nueva y guarda todas en archivo JSON
     evaluaciones = cargar_evaluaciones_desde_archivo()
     evaluaciones.append(evaluacion)
     with open("evaluaciones.json", "w", encoding="utf-8") as f:
         json.dump(evaluaciones, f, indent=2, ensure_ascii=False)
 
-
 def guardar_evaluaciones_completas(match_id, jugadas):
-    # Para una partida específica (match_id), guarda todas las evaluaciones (inicializando si no hay)
+    # Para una partida, guarda todas las evaluaciones no evaluadas con valores iniciales
     evaluaciones = [j for j in jugadas if j.get("match_id") == match_id]
     dimensiones = [
         "Comprensión de Reglas", "Validez y Legalidad", "Razonamiento Estratégico",
         "Factualidad", "Coherencia Explicativa", "Claridad Lingüística", "Adaptabilidad"
     ]
-    
+
     for ev in evaluaciones:
         if not ev.get("evaluada", False):
-            # Si no está evaluada, inicializa evaluación vacía con ceros y razón por defecto
+            # Inicializa evaluación con ceros y razón por defecto para jugadas no evaluadas
             ev["evaluacion"] = {dim: 0 for dim in dimensiones}
             ev["razon"] = "No evaluada por el usuario"
-            ev["evaluada"] = False  # Marca explícitamente como no evaluada
+            ev["evaluada"] = False
 
-    # Guarda en modo append cada evaluación como JSON en archivo
+    # Guarda cada evaluación como línea JSON en archivo de forma acumulativa
     with open("evaluaciones.json", "a", encoding="utf-8") as f:
         for ev in evaluaciones:
             f.write(json.dumps(ev, ensure_ascii=False) + "\n")
 
-
 def obtener_jugadas():
-    # Accede a la base de datos SQLite para obtener todas las jugadas almacenadas
-    conn = create_connection()
-    c = conn.cursor()
-    c.execute('SELECT * FROM jugadas')
-    jugadas = c.fetchall()
-    conn.close()
-    return jugadas
+    # Obtiene todas las jugadas almacenadas en la base de datos SQLite
+    conn = create_connection()  # Abre conexión a base de datos
+    c = conn.cursor()  # Crea cursor para ejecutar consultas
+    c.execute('SELECT * FROM jugadas')  # Consulta todas las filas de la tabla jugadas
+    jugadas = c.fetchall()  # Recupera resultados de la consulta
+    conn.close()  # Cierra conexión
+    return jugadas  # Retorna lista de jugadas
 
 def insertar_evaluacion_bd(match_id, movimiento, evaluacion, razon, jugador, modelo):
-    # Convierte la jugada y evaluación a formato JSON string para almacenamiento
-    movimiento_json = json.dumps(movimiento)
-    evaluacion_json = json.dumps(evaluacion)
+    # Inserta o actualiza una evaluación en la base de datos para una jugada específica
+    movimiento_json = json.dumps(movimiento)  # Convierte movimiento a cadena JSON
+    evaluacion_json = json.dumps(evaluacion)  # Convierte evaluación a cadena JSON
 
-    # Busca si ya existe una evaluación para la misma jugada, partida y jugador
+    # Busca evaluación existente con mismo match_id, movimiento y jugador
     existente = Evaluacion.query.filter_by(match_id=match_id, movimiento=movimiento_json, jugador=jugador).first()
     if existente:
-        # Si existe, actualiza los campos relevantes
+        # Actualiza evaluación existente con nuevos datos
         existente.evaluacion = evaluacion_json
         existente.razon = razon
         existente.modelo = modelo
-        # No se cambia el id porque es clave primaria autoincremental
-        existente.id = existente.id  
+        existente.id = existente.id  # No cambia ID primaria
     else:
-        # Si no existe, crea una nueva evaluación y la agrega a la sesión
+        # Crea nueva evaluación y la añade a la sesión
         nueva_eval = Evaluacion(
             match_id=str(match_id),
             jugador=jugador,
             modelo=modelo,
             movimiento=movimiento_json,
-            evaluacion_automatica=evaluacion_json,
-            razon_automatica=razon                  
+            evaluacion=evaluacion_json,
+            razon=razon
         )
-        db.session.add(nueva_eval)
-    # Confirma los cambios en la base de datos
-    db.session.commit()
-
+        db.session.add(nueva_eval)  # Añade nueva evaluación a la base de datos
+    db.session.commit()  # Guarda cambios en la base de datos
 
 # Modelo de base de datos para almacenar jugadas
 class Jugada(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.String(50), nullable=False)  # ID de la partida
-    jugador = db.Column(db.String(50), nullable=False)   # Jugador que hizo la jugada
-    modelo = db.Column(db.String(50), nullable=False)    # Modelo que generó la jugada
-    movimiento = db.Column(db.Text, nullable=False)      # Movimiento en formato JSON string
-    tablero = db.Column(db.Text, nullable=False)         # Estado del tablero en JSON string
-    ganador = db.Column(db.String(10), nullable=True)    # Ganador si lo hay
-    razon = db.Column(db.Text, nullable=True)             # Explicación/razón de la jugada
-    evaluada = db.Column(db.Boolean, default=False)       # Indicador si la jugada fue evaluada manualmente
-    fecha_evaluacion = db.Column(db.String(50), nullable=True)  # Fecha de la evaluación
-
+    id = db.Column(db.Integer, primary_key=True)  # Clave primaria autoincremental
+    match_id = db.Column(db.String(50), nullable=False)  # Identificador de partida
+    jugador = db.Column(db.String(50), nullable=False)  # Jugador que realizó la jugada
+    modelo = db.Column(db.String(50), nullable=False)  # Modelo IA asociado a la jugada
+    movimiento = db.Column(db.Text, nullable=False)  # Movimiento en formato JSON string
+    tablero = db.Column(db.Text, nullable=False)  # Estado del tablero en JSON string
+    ganador = db.Column(db.String(10), nullable=True)  # Ganador si existe
+    razon = db.Column(db.Text, nullable=True)  # Razón o explicación de la jugada
+    evaluada = db.Column(db.Boolean, default=False)  # Indica si la jugada fue evaluada manualmente
+    fecha_evaluacion = db.Column(db.String(50), nullable=True)  # Fecha en que se evaluó
 
 def insertar_jugada_bd(jugada):
-    # Busca si ya existe la jugada para evitar duplicados
+    # Inserta una jugada en la base de datos si no existe previamente para evitar duplicados
     existente = Jugada.query.filter_by(match_id=str(jugada['match_id']),
                                       movimiento=json.dumps(jugada['movimiento'])).first()
     if existente:
-        return existente  # Si ya está, devuelve el registro existente
+        return existente  # Devuelve registro existente si ya fue guardado
 
-    # Si no existe, crea un nuevo registro con todos los datos
+    # Crea nuevo registro con los datos de la jugada
     nueva_jugada = Jugada(
         match_id=str(jugada['match_id']),
         jugador=jugada['jugador'],
@@ -427,14 +388,13 @@ def insertar_jugada_bd(jugada):
         evaluada=jugada.get('evaluada', False),
         fecha_evaluacion=jugada.get('fecha_evaluacion')
     )
-    db.session.add(nueva_jugada)
-    db.session.commit()
-    return nueva_jugada
-
+    db.session.add(nueva_jugada)  # Añade nueva jugada a la sesión
+    db.session.commit()  # Guarda cambios en la base de datos
+    return nueva_jugada  # Retorna la jugada insertada
 
 def cargar_jugadas_desde_bd():
-    # Recupera todas las jugadas almacenadas en la base de datos y las convierte a dicts para uso en Python
-    jugadas = Jugada.query.all()
+    # Recupera todas las jugadas de la base de datos y las transforma a diccionarios para uso en Python
+    jugadas = Jugada.query.all()  # Consulta todas las jugadas almacenadas
     resultado = []
     for j in jugadas:
         resultado.append({
@@ -442,27 +402,26 @@ def cargar_jugadas_desde_bd():
             "match_id": int(j.match_id),
             "jugador": j.jugador,
             "modelo": j.modelo,
-            "movimiento": json.loads(j.movimiento),  # convierte JSON string a lista/dict
+            "movimiento": json.loads(j.movimiento),  # Convierte JSON string a objeto Python
             "tablero": json.loads(j.tablero),
             "ganador": j.ganador,
             "razon": j.razon,
             "evaluada": j.evaluada,
             "fecha_evaluacion": j.fecha_evaluacion
         })
-    return resultado
-
+    return resultado  # Retorna lista de diccionarios con jugadas
 
 def insertar_o_actualizar_evaluacion_bd(jugada):
-    # Convierte los campos de jugada a JSON strings para almacenamiento
-    movimiento_json = json.dumps(jugada['movimiento'])
-    eval_auto_json = json.dumps(jugada.get('evaluacion_automatica', {}))
+    # Inserta o actualiza evaluaciones automáticas y humanas en la base de datos
+    movimiento_json = json.dumps(jugada['movimiento'])  # Convierte movimiento a JSON string
+    eval_auto_json = json.dumps(jugada.get('evaluacion_automatica', {}))  # Eval. automática como JSON string
     eval_humana_json = json.dumps(jugada.get('evaluacion_humana', {})) if jugada.get('evaluacion_humana') else None
 
-    # Razones de evaluaciones automáticas y humanas (si existen)
+    # Obtiene razones para evaluaciones si existen
     razon_auto = jugada.get('razon', None) if jugada.get('evaluacion_automatica') else None
     razon_huma = jugada.get('razon_humana', None) if jugada.get('evaluacion_humana') else None
 
-    # Busca evaluación existente para esa jugada, jugador y partida
+    # Busca evaluación existente para el mismo match_id, jugador y movimiento
     existente = Evaluacion.query.filter_by(
         match_id=str(jugada['match_id']),
         jugador=jugada['jugador'],
@@ -470,7 +429,7 @@ def insertar_o_actualizar_evaluacion_bd(jugada):
     ).first()
 
     if existente:
-        # Actualiza los campos si ya existe evaluación
+        # Actualiza campos de evaluación existente
         existente.evaluacion_automatica = eval_auto_json
         existente.evaluacion_humana = eval_humana_json
         existente.razon_automatica = razon_auto
@@ -489,52 +448,53 @@ def insertar_o_actualizar_evaluacion_bd(jugada):
             razon_humana=razon_huma
         )
         db.session.add(nueva_eval)
-    # Guarda cambios en la base de datos
-    db.session.commit()
+    db.session.commit()  # Guarda los cambios en la base de datos
 
 
 ### RUTAS PARA EVALUACIÓN ###
 
 @app.route("/evaluar", methods=["GET", "POST"])
 def evaluar():
-    # Carga todas las jugadas desde archivo JSON local
+    # Carga todas las jugadas almacenadas en un archivo JSON local
     jugadas = cargar_jugadas_desde_archivo()
 
-    # Obtener todos los match_id únicos y ordenados
+    # Obtiene todos los match_id únicos y los ordena ascendentemente
     match_ids = sorted(set(j['match_id'] for j in jugadas))
     siguiente_match_id = None
     
-    # Buscar el primer match_id que tenga jugadas no evaluadas
+    # Busca el primer match_id que tenga jugadas pendientes de evaluación
     for mid in match_ids:
         if any(not j.get("evaluada", False) for j in jugadas if j['match_id'] == mid):
             siguiente_match_id = mid
             break
 
-    # Si no hay jugadas pendientes para evaluar, mostrar mensaje
+    # Si no hay jugadas pendientes, devuelve mensaje informativo
     if siguiente_match_id is None:
         return "No hay jugadas pendientes para evaluar."
 
-    # Filtrar las jugadas del match actual y solo las que no están evaluadas
+    # Filtra todas las jugadas del match seleccionado
     jugadas_del_match = [j for j in jugadas if j['match_id'] == siguiente_match_id]
+    # De esas, filtra solo las que aún no han sido evaluadas
     jugadas_no_evaluadas = [j for j in jugadas_del_match if not j.get("evaluada", False)]
 
-    # Seguridad: si no quedan jugadas no evaluadas, recargar la página
+    # Si no quedan jugadas no evaluadas, redirige para recargar la página
     if not jugadas_no_evaluadas:
         return redirect(url_for("evaluar"))
 
-    # Seleccionar la primera jugada no evaluada para mostrar en el formulario
+    # Selecciona la primera jugada no evaluada para mostrar en el formulario
     jugada_actual = jugadas_no_evaluadas[0]
 
     if request.method == "POST":
-        # Recoger la razón escrita por el evaluador y la rúbrica (puntuaciones)
+        # Obtiene la razón escrita por el evaluador desde el formulario
         razon = request.form.get('razon', '')
         rubrica = {}
+        # Recorre los campos del formulario para extraer la puntuación de cada dimensión
         for key in request.form:
             if key.startswith("rubrica[") and key.endswith("]"):
-                dim = key[7:-1]  # Extraer la dimensión evaluada
+                dim = key[7:-1]  # Extrae el nombre de la dimensión evaluada
                 rubrica[dim] = int(request.form.get(key))
 
-        # Guardar la evaluación en la jugada actual en memoria (lista jugadas)
+        # Actualiza la jugada actual en la lista con la evaluación y la razón
         for j in jugadas:
             if j['match_id'] == jugada_actual['match_id'] and j['movimiento'] == jugada_actual['movimiento']:
                 j['evaluacion'] = rubrica
@@ -542,14 +502,14 @@ def evaluar():
                 j['evaluada'] = True
                 break
 
-        # Si todas las jugadas del match ya están evaluadas, guardar el archivo final
+        # Si todas las jugadas del match ya están evaluadas, guarda el archivo final con evaluaciones completas
         if all(j.get("evaluada", False) for j in jugadas_del_match):
             guardar_evaluaciones_completas(siguiente_match_id, jugadas_del_match)
 
-        # Guardar los cambios en el archivo principal
+        # Guarda los cambios en el archivo principal de jugadas
         guardar_jugadas_en_archivo(jugadas)
 
-        # Guardar la evaluación también en la base de datos (manejo básico de errores)
+        # Intenta guardar la evaluación en la base de datos, manejando errores si ocurren
         try:
             insertar_evaluacion_bd(
                 match_id=jugada_actual['match_id'],
@@ -562,16 +522,16 @@ def evaluar():
         except Exception as e:
             print(f"Error guardando evaluación en BD: {e}")
 
-        # Redirigir para evaluar la siguiente jugada pendiente
+        # Redirige para evaluar la siguiente jugada pendiente
         return redirect(url_for("evaluar"))
 
-    # Renderizar la plantilla de evaluación, pasando la jugada actual
+    # Renderiza la plantilla HTML de evaluación pasando la jugada actual y la función enumerate
     return render_template("evaluar.html", jugada=jugada_actual, enumerate=enumerate)
 
 
 @app.route("/evaluaciones_historial")
 def evaluaciones_historial():
-    # Dimensiones que se evaluaron para mostrar en la página de historial
+    # Define las dimensiones evaluadas para mostrar en la página de historial
     dimensiones = [
         "Comprensión de Reglas",
         "Validez y Legalidad",
@@ -582,7 +542,7 @@ def evaluaciones_historial():
         "Adaptabilidad",
     ]
 
-    # Ejemplo de promedios para cada dimensión (puede obtenerse de BD o cálculos)
+    # Define valores de promedio de ejemplo para cada dimensión (se puede obtener dinámicamente)
     promedios = {
         "Comprensión de Reglas": 2.5,
         "Validez y Legalidad": 2.2,
@@ -593,10 +553,10 @@ def evaluaciones_historial():
         "Adaptabilidad": 2.0,
     }
 
-    # Cargar evaluaciones desde archivo JSON
+    # Carga evaluaciones desde archivo JSON local
     evaluaciones = cargar_evaluaciones_desde_archivo()
 
-    # Preparar datos para la plantilla (normalizar formatos, legibilidad)
+    # Normaliza y prepara los datos para facilitar su visualización en la plantilla
     for ev in evaluaciones:
         ev.setdefault("evaluacion", "")
         ev.setdefault("tablero", "")
@@ -606,7 +566,7 @@ def evaluaciones_historial():
         ev.setdefault("modelo", "")
         ev.setdefault("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-        # Formatear movimiento para que sea legible si es tipo "mark"
+        # Convierte movimientos tipo "mark" a un formato legible para mostrar
         if (isinstance(ev["movimiento"], list) and len(ev["movimiento"]) >= 3
                 and ev["movimiento"][0] == "mark"):
             fila = ev["movimiento"][1]
@@ -615,7 +575,7 @@ def evaluaciones_historial():
         else:
             ev["movimiento_legible"] = str(ev["movimiento"])
 
-        # Formatear texto de razón si es lista o string
+        # Formatea la razón para mostrarla como texto continuo, ya sea lista o string
         if isinstance(ev["razon"], list):
             ev["razon_texto"] = "\n".join(ev["razon"])
         elif isinstance(ev["razon"], str):
@@ -623,17 +583,17 @@ def evaluaciones_historial():
         else:
             ev["razon_texto"] = ""
 
-        # Mantener tablero como lista si es lista (para plantilla)
+        # Mantiene el tablero en formato lista para facilitar su uso en la plantilla
         if isinstance(ev["tablero"], list):
             ev["tablero"] = ev["tablero"]
 
-    # Renderizar la plantilla del historial con los datos procesados
+    # Renderiza la plantilla HTML con los datos procesados para el historial de evaluaciones
     return render_template("evaluaciones_historial.html", evaluaciones=evaluaciones, dimensiones=dimensiones, promedios=promedios)
 
 
 @app.route("/rubrica")
 def ver_rubrica():
-    # Define las dimensiones y niveles de la rúbrica para mostrar en la web
+    # Define la estructura completa de la rúbrica con dimensiones y niveles explicativos
     rubrica = [
         {
             "dimension": "Comprensión de Reglas",
@@ -678,33 +638,33 @@ def ver_rubrica():
             "nivel3": "Se adapta rápidamente y ajusta su estrategia eficazmente."
         }
     ]
-    # Renderiza la plantilla que muestra la rúbrica completa
+    # Renderiza la plantilla HTML que muestra la rúbrica completa para referencia
     return render_template("rubrica.html", rubrica=rubrica)
 
 @app.route('/guardar_evaluacion', methods=['POST'])
 def guardar_evaluacion():
-    # Carga todas las jugadas guardadas en archivo JSON
+    # Carga todas las jugadas guardadas en el archivo JSON local
     jugadas = cargar_jugadas_desde_archivo()
 
-    # Obtener datos del formulario enviados por POST
+    # Obtiene datos del formulario enviados vía POST
     match_id = int(request.form.get("match_id"))
     razon = request.form.get("razon", "").strip()
 
-    # Recuperar datos guardados en session sobre la jugada actual
+    # Recupera datos guardados en la sesión sobre la jugada actual
     jugador = session.get("turno_actual", "desconocido")
     modelo = session.get("modelo", "desconocido")
     movimiento = session.get("movimiento", [])
     tablero_actual = session.get("tablero", [["b"]*3 for _ in range(3)])
     ganador = session.get("ganador", None)
 
-    # Extraer evaluación (puntuaciones) de la rúbrica enviada
+    # Extrae la evaluación (puntuaciones) de la rúbrica enviada desde el formulario
     rubrica = {}
     for key in request.form:
         if key.startswith("rubrica[") and key.endswith("]"):
-            dim = key[7:-1]  # Extraer el nombre de la dimensión evaluada
+            dim = key[7:-1]  # Extrae el nombre de la dimensión evaluada
             rubrica[dim] = int(request.form.get(key))
 
-    # Buscar la jugada correspondiente a este match_id que aún no esté evaluada
+    # Busca la jugada correspondiente a este match_id que aún no esté evaluada
     jugada_actual = None
     for j in jugadas:
         if j['match_id'] == match_id and not j.get("evaluada", False):
@@ -712,7 +672,7 @@ def guardar_evaluacion():
             break
 
     if jugada_actual:
-        # Actualizar jugada con los datos de evaluación humana
+        # Actualiza la jugada con los datos de la evaluación humana
         jugada_actual["jugador"] = jugador
         jugada_actual["modelo"] = modelo
         jugada_actual["movimiento"] = movimiento
@@ -723,10 +683,10 @@ def guardar_evaluacion():
         jugada_actual["evaluada"] = True
         jugada_actual["fecha_evaluacion"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Guardar los cambios en el archivo de jugadas (backup)
+        # Guarda los cambios en el archivo de jugadas como respaldo
         guardar_jugadas_en_archivo(jugadas)
 
-        # Intentar guardar evaluación en base de datos (manejo básico de errores)
+        # Intenta guardar la evaluación en la base de datos, manejando posibles errores
         try:
             insertar_evaluacion_bd(
                 match_id=jugada_actual['match_id'],
@@ -739,34 +699,34 @@ def guardar_evaluacion():
         except Exception as e:
             print(f"Error guardando evaluación en BD: {e}")
 
-    # Redirigir a página principal o a donde quieras después de guardar
+    # Redirige a la página principal después de guardar la evaluación
     return redirect(url_for("index"))
 
 
 @app.route("/siguiente_jugada", methods=["POST"])
 def siguiente_jugada():
-    # Simplemente redirige a la ruta evaluar para mostrar la siguiente jugada no evaluada
+    # Redirige a la ruta 'evaluar' para mostrar la siguiente jugada pendiente de evaluación
     return redirect(url_for("evaluar"))
 
 
-# Funciones para cargar evaluaciones y calcular estadísticas para gráficos
+# Funciones auxiliares para manejo de evaluaciones y estadísticas para gráficos
 
 def cargar_evaluaciones():
-    # Carga evaluaciones guardadas en archivo JSON
+    # Intenta cargar evaluaciones guardadas desde archivo JSON local
     try:
         with open("evaluaciones.json", "r", encoding="utf-8") as f:
             evaluaciones = json.load(f)
         return evaluaciones
     except Exception:
-        # En caso de error o archivo no encontrado, devolver lista vacía
+        # Si ocurre un error o no existe el archivo, retorna lista vacía
         return []
 
 def calcular_promedios(evaluaciones):
-    # Inicializar acumuladores para cada dimensión de la rúbrica
+    # Inicializa acumuladores y contadores para cada dimensión de la rúbrica
     suma_por_dim = {dim: 0 for dim in DIMENSIONES}
     conteo_por_dim = {dim: 0 for dim in DIMENSIONES}
 
-    # Recorrer cada evaluación y sumar los valores por dimensión
+    # Recorre cada evaluación para sumar las puntuaciones por dimensión
     for ev in evaluaciones:
         rubrica = ev.get('rubrica', {})
         for dim in DIMENSIONES:
@@ -777,10 +737,10 @@ def calcular_promedios(evaluaciones):
                     suma_por_dim[dim] += v
                     conteo_por_dim[dim] += 1
                 except ValueError:
-                    # Ignorar valores no numéricos
+                    # Ignora valores que no sean numéricos
                     pass
 
-    # Calcular promedio para cada dimensión (0 si no hay evaluaciones)
+    # Calcula el promedio para cada dimensión, asignando 0 si no hay evaluaciones
     promedios = {}
     for dim in DIMENSIONES:
         if conteo_por_dim[dim] > 0:
@@ -793,14 +753,14 @@ def calcular_promedios(evaluaciones):
 
 @app.route("/grafico_radar")
 def grafico_radar():
-    # Cargar evaluaciones guardadas
+    # Carga evaluaciones almacenadas para generar estadísticas
     evaluaciones = cargar_evaluaciones()
-    # Calcular promedios por dimensión para graficar
+    # Calcula promedios por dimensión para mostrar en gráfico radar
     promedios = calcular_promedios(evaluaciones)
-    # Renderizar plantilla enviando las dimensiones y promedios calculados
+    # Renderiza la plantilla con las dimensiones y los promedios calculados
     return render_template("grafico_radar.html", dimensiones=DIMENSIONES, promedios=promedios)
 
 
 if __name__ == "__main__":
-    # Ejecutar la app en modo debug para desarrollo
+    # Inicia la aplicación Flask en modo debug para desarrollo
     app.run(debug=True)
