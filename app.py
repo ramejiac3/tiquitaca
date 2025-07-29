@@ -111,7 +111,44 @@ turno_numero = 1  # Contador del número de turno o movimiento
 historial = []  # Lista para almacenar el historial de jugadas
 
 # --- Rutas principales del servidor Flask ---
+##########################################################################
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        # Here you would add your actual authentication logic.
+        # For example, check username and password against a database or hardcoded values.
+        username = request.form.get("username")
+        password = request.form.get("password")
 
+        # --- DUMMY AUTHENTICATION FOR DEMONSTRATION ---
+        if username == "admin" and password == "securepassword": # Replace with your actual credentials
+            session["logueado"] = True # Set a session variable to indicate the user is logged in
+            # After successful login, redirect to where they wanted to go,
+            # or a default page like the index or a dashboard.
+            return redirect(url_for("descargar_bd")) # Redirect to the new route to download DB
+        else:
+            # If authentication fails, you might want to re-render the login page with an error message
+            error_message = "Credenciales inválidas. Por favor, inténtelo de nuevo."
+            return render_template("login.html", error=error_message)
+
+    # For GET requests, render the login form
+    return render_template("login.html")
+
+# Add a new route for downloading the DB, which will be protected
+@app.route("/descargar_bd")
+def descargar_bd():
+    if not session.get("logueado"):
+        return redirect(url_for("login"))
+
+    # Here you would implement the logic to serve the database file.
+    # For example, sending the 'evaluaciones.db' file.
+    try:
+        # Assuming 'evaluaciones.db' is in the same directory as app.py
+        # Be careful with direct file serving in production; consider security implications.
+        return send_from_directory(os.getcwd(), 'evaluaciones.db', as_attachment=True)
+    except FileNotFoundError:
+        return "El archivo de base de datos no se encontró.", 404
+##########################################################################
 @app.route("/")
 def index():
     # Renderiza la página principal del juego con un tablero vacío para iniciar partida
