@@ -38,14 +38,18 @@ import os  # Importa módulo para manejo de sistema operativo y archivos
 import json  # Importa módulo para manejo de datos JSON
 from datetime import datetime  # Importa clase para manejo de fechas y horas
 ############
-from flask import Flask, request, redirect, url_for, render_template_string, send_file, session
+from flask import Flask, request, redirect, url_for, render_template_string, send_file, session, jsonify
+import sqlite3
+import json
+import os
 
 app = Flask(__name__)
-app.secret_key = 'clave_secreta_segura'  # Requerido para que las sesiones funcionen
+app.secret_key = 'clave_secreta_segura'  # Requerido para sesiones
 
-# 👉 Credenciales básicas para iniciar sesión
+# 👉 Credenciales básicas
 USUARIO = 'admin'
 CLAVE = '1234'
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -53,7 +57,7 @@ def login():
         clave = request.form.get('clave')
         if usuario == USUARIO and clave == CLAVE:
             session['logueado'] = True
-            return redirect(url_for('descargar'))
+            return redirect(url_for('descargar_json'))
         else:
             return 'Credenciales incorrectas', 401
     return render_template_string("""
@@ -64,11 +68,31 @@ def login():
         </form>
     """)
 
-@app.route('/descargar')
-def descargar():
+@app.route('/descargar-json')
+def descargar_json():
     if not session.get('logueado'):
         return redirect(url_for('login'))
-    return send_file('evaluaciones.db', as_attachment=True)  # O 'jugadas.json' si prefieres JSON
+
+    db_path = 'evaluaciones.db'
+    json_path = 'evaluaciones.json'
+
+    # Extraer datos de la BD
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM evaluacion")
+    filas = c.fetchall()
+    conn.close()
+
+    # Convertir a lista de diccionarios
+    datos = [dict(fila) for fila in filas]
+
+    # Guardar como archivo JSON
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(datos, f, indent=2, ensure_ascii=False)
+
+    # Enviar archivo como descarga
+    return send_file(json_path, as_attachment=True)
 ############
 # --- Flask y componentes de aplicación web ---
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
