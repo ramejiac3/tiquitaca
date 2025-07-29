@@ -55,7 +55,7 @@ def obtener_ultima_jugada():
 
 ############
 # --- Flask y componentes de aplicación web ---
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory
 # Importa Flask y funciones para crear app web, manejar plantillas, solicitudes HTTP, respuestas JSON, redirecciones y sesiones
 
 # --- Funciones del juego (lógica central separada) ---
