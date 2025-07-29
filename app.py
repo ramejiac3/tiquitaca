@@ -37,7 +37,39 @@ import numpy as np  # Importa NumPy para operaciones numéricas y matrices
 import os  # Importa módulo para manejo de sistema operativo y archivos
 import json  # Importa módulo para manejo de datos JSON
 from datetime import datetime  # Importa clase para manejo de fechas y horas
+############
+from flask import Flask, request, redirect, url_for, render_template_string, send_file, session
 
+app = Flask(__name__)
+app.secret_key = 'clave_secreta_segura'  # Requerido para que las sesiones funcionen
+
+# 👉 Credenciales básicas para iniciar sesión
+USUARIO = 'admin'
+CLAVE = '1234'
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form.get('usuario')
+        clave = request.form.get('clave')
+        if usuario == USUARIO and clave == CLAVE:
+            session['logueado'] = True
+            return redirect(url_for('descargar'))
+        else:
+            return 'Credenciales incorrectas', 401
+    return render_template_string("""
+        <form method="post">
+            Usuario: <input name="usuario"><br>
+            Clave: <input name="clave" type="password"><br>
+            <input type="submit" value="Iniciar sesión">
+        </form>
+    """)
+
+@app.route('/descargar')
+def descargar():
+    if not session.get('logueado'):
+        return redirect(url_for('login'))
+    return send_file('evaluaciones.db', as_attachment=True)  # O 'jugadas.json' si prefieres JSON
+############
 # --- Flask y componentes de aplicación web ---
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 # Importa Flask y funciones para crear app web, manejar plantillas, solicitudes HTTP, respuestas JSON, redirecciones y sesiones
