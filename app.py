@@ -38,35 +38,21 @@ import os  # Importa módulo para manejo de sistema operativo y archivos
 import json  # Importa módulo para manejo de datos JSON
 from datetime import datetime  # Importa clase para manejo de fechas y horas
 ############
-from flask import Flask, request, redirect, url_for, render_template_string, send_file, session, jsonify
-import sqlite3
 import json
 import os
 
-app = Flask(__name__)
-app.secret_key = 'clave_secreta_segura'  # Requerido para sesiones
+RUTA_JUGADAS = 'jugadas.json'  # Cambia si quieres otra ruta
 
-# 👉 Credenciales básicas
-USUARIO = 'admin'
-CLAVE = '1234'
+def obtener_ultima_jugada():
+    if not os.path.exists(RUTA_JUGADAS):
+        return None
+    with open(RUTA_JUGADAS, 'r', encoding='utf-8') as f:
+        jugadas = json.load(f)
+        if not jugadas:
+            return None
+        # Asumo que la última jugada es la última del array
+        return jugadas[-1]
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        usuario = request.form.get('usuario')
-        clave = request.form.get('clave')
-        if usuario == USUARIO and clave == CLAVE:
-            session['logueado'] = True
-            return redirect(url_for('descargar_json'))
-        else:
-            return 'Credenciales incorrectas', 401
-    return render_template_string("""
-        <form method="post">
-            Usuario: <input name="usuario"><br>
-            Clave: <input name="clave" type="password"><br>
-            <input type="submit" value="Iniciar sesión">
-        </form>
-    """)
 ############
 # --- Flask y componentes de aplicación web ---
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
@@ -821,28 +807,24 @@ def grafico_radar():
     # Renderiza la plantilla con las dimensiones y los promedios calculados
     return render_template("grafico_radar.html", dimensiones=DIMENSIONES, promedios=promedios)
 ###########
-@app.route('/descargar-json')
-def descargar_json():
+@app.route('/evaluar')
+def evaluar():
     if not session.get('logueado'):
         return redirect(url_for('login'))
 
-    db_path = 'evaluaciones.db'
-    json_path = 'evaluaciones.json'
+    jugada = obtener_ultima_jugada()
 
-    # Leer datos desde la base de datos
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM evaluacion")
-    filas = c.fetchall()
-    conn.close()
+    dimensiones = [
+        ("Comprensión de Reglas", "Evalúa si la jugada cumple las reglas básicas."),
+        ("Validez y Legalidad", "Valida que el movimiento sea legal."),
+        ("Razonamiento Estratégico", "Analiza la intención estratégica del movimiento."),
+        ("Factualidad", "Basado en hechos concretos del juego."),
+        ("Coherencia Explicativa", "Claridad y lógica en la explicación."),
+        ("Claridad Lingüística", "Precisión gramatical y lenguaje."),
+        ("Adaptabilidad", "Capacidad de adaptarse a jugadas previas."),
+    ]
 
-    # Convertir a JSON
-    datos = [dict(fila) for fila in filas]
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
-
-    return send_file(json_path, as_attachment=True)
+    return render_template('evaluar.html', jugada=jugada, dimensiones=dimensiones)
 ###########
 
 if __name__ == "__main__":
