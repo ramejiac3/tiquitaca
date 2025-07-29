@@ -67,32 +67,6 @@ def login():
             <input type="submit" value="Iniciar sesión">
         </form>
     """)
-
-@app.route('/descargar-json')
-def descargar_json():
-    if not session.get('logueado'):
-        return redirect(url_for('login'))
-
-    db_path = 'evaluaciones.db'
-    json_path = 'evaluaciones.json'
-
-    # Extraer datos de la BD
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM evaluacion")
-    filas = c.fetchall()
-    conn.close()
-
-    # Convertir a lista de diccionarios
-    datos = [dict(fila) for fila in filas]
-
-    # Guardar como archivo JSON
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
-
-    # Enviar archivo como descarga
-    return send_file(json_path, as_attachment=True)
 ############
 # --- Flask y componentes de aplicación web ---
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
@@ -846,7 +820,30 @@ def grafico_radar():
     promedios = calcular_promedios(evaluaciones)
     # Renderiza la plantilla con las dimensiones y los promedios calculados
     return render_template("grafico_radar.html", dimensiones=DIMENSIONES, promedios=promedios)
+###########
+@app.route('/descargar-json')
+def descargar_json():
+    if not session.get('logueado'):
+        return redirect(url_for('login'))
 
+    db_path = 'evaluaciones.db'
+    json_path = 'evaluaciones.json'
+
+    # Leer datos desde la base de datos
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM evaluacion")
+    filas = c.fetchall()
+    conn.close()
+
+    # Convertir a JSON
+    datos = [dict(fila) for fila in filas]
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(datos, f, indent=2, ensure_ascii=False)
+
+    return send_file(json_path, as_attachment=True)
+###########
 
 if __name__ == "__main__":
     # Inicia la aplicación Flask en modo debug para desarrollo
