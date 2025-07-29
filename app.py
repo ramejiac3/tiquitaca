@@ -500,48 +500,81 @@ def insertar_o_actualizar_evaluacion_bd(jugada):
 
 ### RUTAS PARA EVALUACIÓN ###
 
+####
+@app.route('/evaluar')
+def evaluar():
+    if not session.get('logueado'):
+        return redirect(url_for('login'))
+
+    jugada = obtener_ultima_jugada()
+
+    dimensiones = [
+        ("Comprensión de Reglas", "Evalúa si la jugada cumple las reglas básicas."),
+        ("Validez y Legalidad", "Valida que el movimiento sea legal."),
+        ("Razonamiento Estratégico", "Analiza la intención estratégica del movimiento."),
+        ("Factualidad", "Basado en hechos concretos del juego."),
+        ("Coherencia Explicativa", "Claridad y lógica en la explicación."),
+        ("Claridad Lingüística", "Precisión gramatical y lenguaje."),
+        ("Adaptabilidad", "Capacidad de adaptarse a jugadas previas."),
+    ]
+
+    return render_template('evaluar.html', jugada=jugada, dimensiones=dimensiones)
+Para solucionar esto, es necesario combinar la lógica de estas dos funciones en una sola @app.route('/evaluar'). Parece que la segunda evaluarfunción es una versión simplificada y podría ser un remanente o una duplicación accidental.
+
+Aquí le mostramos cómo puede corregirlo, asumiendo que desea conservar la lógica más completa de la primera definición e integrar la verificación de inicio de sesión de la segunda:
+
+Pitón
+
+# ... (rest of your app.py file) ...
+
+### RUTAS PARA EVALUACIÓN ###
+
 @app.route("/evaluar", methods=["GET", "POST"])
 def evaluar():
-    # Carga todas las jugadas almacenadas en un archivo JSON local
+    # Add the login check at the beginning of the function
+    if not session.get('logueado'):
+        return redirect(url_for('login'))
+
+    # Load all stored plays from a local JSON file
     jugadas = cargar_jugadas_desde_archivo()
 
-    # Obtiene todos los match_id únicos y los ordena ascendentemente
+    # Get all unique match_ids and sort them ascendingly
     match_ids = sorted(set(j['match_id'] for j in jugadas))
     siguiente_match_id = None
     
-    # Busca el primer match_id que tenga jugadas pendientes de evaluación
+    # Find the first match_id that has plays pending evaluation
     for mid in match_ids:
         if any(not j.get("evaluada", False) for j in jugadas if j['match_id'] == mid):
             siguiente_match_id = mid
             break
 
-    # Si no hay jugadas pendientes, devuelve mensaje informativo
+    # If there are no pending plays, return an informative message
     if siguiente_match_id is None:
         return "No hay jugadas pendientes para evaluar."
 
-    # Filtra todas las jugadas del match seleccionado
+    # Filter all plays from the selected match
     jugadas_del_match = [j for j in jugadas if j['match_id'] == siguiente_match_id]
-    # De esas, filtra solo las que aún no han sido evaluadas
+    # From those, filter only the ones that have not yet been evaluated
     jugadas_no_evaluadas = [j for j in jugadas_del_match if not j.get("evaluada", False)]
 
-    # Si no quedan jugadas no evaluadas, redirige para recargar la página
+    # If there are no unevaluated plays left, redirect to reload the page
     if not jugadas_no_evaluadas:
         return redirect(url_for("evaluar"))
 
-    # Selecciona la primera jugada no evaluada para mostrar en el formulario
+    # Select the first unevaluated play to display in the form
     jugada_actual = jugadas_no_evaluadas[0]
 
     if request.method == "POST":
-        # Obtiene la razón escrita por el evaluador desde el formulario
+        # Get the reason written by the evaluator from the form
         razon = request.form.get('razon', '')
         rubrica = {}
-        # Recorre los campos del formulario para extraer la puntuación de cada dimensión
+        # Iterate through the form fields to extract the score for each dimension
         for key in request.form:
             if key.startswith("rubrica[") and key.endswith("]"):
-                dim = key[7:-1]  # Extrae el nombre de la dimensión evaluada
+                dim = key[7:-1]  # Extract the name of the evaluated dimension
                 rubrica[dim] = int(request.form.get(key))
 
-        # Actualiza la jugada actual en la lista con la evaluación y la razón
+        # Update the current play in the list with the evaluation and reason
         for j in jugadas:
             if j['match_id'] == jugada_actual['match_id'] and j['movimiento'] == jugada_actual['movimiento']:
                 j['evaluacion'] = rubrica
@@ -549,14 +582,14 @@ def evaluar():
                 j['evaluada'] = True
                 break
 
-        # Si todas las jugadas del match ya están evaluadas, guarda el archivo final con evaluaciones completas
+        # If all plays in the match have already been evaluated, save the final file with complete evaluations
         if all(j.get("evaluada", False) for j in jugadas_del_match):
             guardar_evaluaciones_completas(siguiente_match_id, jugadas_del_match)
 
-        # Guarda los cambios en el archivo principal de jugadas
+        # Save changes to the main plays file
         guardar_jugadas_en_archivo(jugadas)
 
-        # Intenta guardar la evaluación en la base de datos, manejando errores si ocurren
+        # Try to save the evaluation to the database, handling errors if they occur
         try:
             insertar_evaluacion_bd(
                 match_id=jugada_actual['match_id'],
@@ -569,11 +602,23 @@ def evaluar():
         except Exception as e:
             print(f"Error guardando evaluación en BD: {e}")
 
-        # Redirige para evaluar la siguiente jugada pendiente
+        # Redirect to evaluate the next pending play
         return redirect(url_for("evaluar"))
 
-    # Renderiza la plantilla HTML de evaluación pasando la jugada actual y la función enumerate
-    return render_template("evaluar.html", jugada=jugada_actual, enumerate=enumerate)
+    # Define dimensions for displaying in the template (from your second definition)
+    dimensiones = [
+        ("Comprensión de Reglas", "Evalúa si la jugada cumple las reglas básicas."),
+        ("Validez y Legalidad", "Valida que el movimiento sea legal."),
+        ("Razonamiento Estratégico", "Analiza la intención estratégica del movimiento."),
+        ("Factualidad", "Basado en hechos concretos del juego."),
+        ("Coherencia Explicativa", "Claridad y lógica en la explicación."),
+        ("Claridad Lingüística", "Precisión gramatical y lenguaje."),
+        ("Adaptabilidad", "Capacidad de adaptarse a jugadas previas."),
+    ]
+
+    # Render the HTML evaluation template passing the current play, dimensions, and the enumerate function
+    return render_template("evaluar.html", jugada=jugada_actual, dimensiones=dimensiones, enumerate=enumerate) 
+####
 
 
 @app.route("/evaluaciones_historial")
@@ -807,24 +852,6 @@ def grafico_radar():
     # Renderiza la plantilla con las dimensiones y los promedios calculados
     return render_template("grafico_radar.html", dimensiones=DIMENSIONES, promedios=promedios)
 ###########
-@app.route('/evaluar')
-def evaluar():
-    if not session.get('logueado'):
-        return redirect(url_for('login'))
-
-    jugada = obtener_ultima_jugada()
-
-    dimensiones = [
-        ("Comprensión de Reglas", "Evalúa si la jugada cumple las reglas básicas."),
-        ("Validez y Legalidad", "Valida que el movimiento sea legal."),
-        ("Razonamiento Estratégico", "Analiza la intención estratégica del movimiento."),
-        ("Factualidad", "Basado en hechos concretos del juego."),
-        ("Coherencia Explicativa", "Claridad y lógica en la explicación."),
-        ("Claridad Lingüística", "Precisión gramatical y lenguaje."),
-        ("Adaptabilidad", "Capacidad de adaptarse a jugadas previas."),
-    ]
-
-    return render_template('evaluar.html', jugada=jugada, dimensiones=dimensiones)
 ###########
 
 if __name__ == "__main__":
