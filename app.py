@@ -497,29 +497,6 @@ def insertar_o_actualizar_evaluacion_bd(jugada):
         db.session.add(nueva_eval)
     db.session.commit()  # Guarda los cambios en la base de datos
 
-
-### RUTAS PARA EVALUACIÓN ###
-
-####
-@app.route('/evaluar')
-def evaluar():
-    if not session.get('logueado'):
-        return redirect(url_for('login'))
-
-    jugada = obtener_ultima_jugada()
-
-    dimensiones = [
-        ("Comprensión de Reglas", "Evalúa si la jugada cumple las reglas básicas."),
-        ("Validez y Legalidad", "Valida que el movimiento sea legal."),
-        ("Razonamiento Estratégico", "Analiza la intención estratégica del movimiento."),
-        ("Factualidad", "Basado en hechos concretos del juego."),
-        ("Coherencia Explicativa", "Claridad y lógica en la explicación."),
-        ("Claridad Lingüística", "Precisión gramatical y lenguaje."),
-        ("Adaptabilidad", "Capacidad de adaptarse a jugadas previas."),
-    ]
-
-    return render_template('evaluar.html', jugada=jugada, dimensiones=dimensiones)
-
 ### RUTAS PARA EVALUACIÓN ###
 
 @app.route("/evaluar", methods=["GET", "POST"])
