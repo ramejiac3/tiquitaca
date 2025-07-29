@@ -519,13 +519,6 @@ def evaluar():
     ]
 
     return render_template('evaluar.html', jugada=jugada, dimensiones=dimensiones)
-Para solucionar esto, es necesario combinar la lógica de estas dos funciones en una sola @app.route('/evaluar'). Parece que la segunda evaluarfunción es una versión simplificada y podría ser un remanente o una duplicación accidental.
-
-Aquí le mostramos cómo puede corregirlo, asumiendo que desea conservar la lógica más completa de la primera definición e integrar la verificación de inicio de sesión de la segunda:
-
-Pitón
-
-# ... (rest of your app.py file) ...
 
 ### RUTAS PARA EVALUACIÓN ###
 
