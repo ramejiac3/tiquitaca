@@ -780,9 +780,9 @@ def ver_rubrica():
 
 @app.route('/guardar_evaluacion', methods=['POST'])
 def guardar_evaluacion():
-    # ... (código existente para obtener datos del formulario)
+    # [Mantener código existente para obtener datos...]
     
-    # Crear objeto de evaluación completo
+    # Crear objeto de evaluación COMPLETO
     evaluacion_completa = {
         "match_id": match_id,
         "jugador": jugador,
@@ -792,28 +792,15 @@ def guardar_evaluacion():
         "razon": razon,
         "evaluada": True,
         "fecha_evaluacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "tablero": session.get("tablero", [])
+        "tablero": session.get("tablero", []),
+        "timestamp": datetime.now().timestamp()  # Campo nuevo para identificación única
     }
     
-    # Guardar en archivo JSON (acumulativo)
-    guardar_evaluacion_en_archivo(evaluacion_completa)
+    # Guardar usando la función modificada
+    guardar_evaluacion_en_archivo(evaluacion_completa)  # <-- Cambio clave aquí
     
-    # Guardar en base de datos
-    try:
-        insertar_evaluacion_bd(
-            match_id=match_id,
-            movimiento=movimiento,
-            evaluacion_rubrica=rubrica,
-            razon=razon,
-            jugador=jugador,
-            modelo=modelo,
-            dimensiones_eval=DIMENSIONES
-        )
-    except Exception as e:
-        print(f"Error guardando en BD: {e}")
-    
+    # [Mantener el resto del código...]
     return redirect(url_for("descargar_evaluaciones_json"))
-
 
 @app.route("/siguiente_jugada", methods=["POST"])
 def siguiente_jugada():
@@ -876,58 +863,50 @@ import io
 ######################################################################################################
 from flask import make_response
 
-@app.route('/descargar_evaluaciones_txt')
-def descargar_evaluaciones_txt():
-    # Cargar las evaluaciones desde el archivo JSON
-    def descargar_evaluaciones_json():
+@app.route("/descargar_evaluaciones_json")
+def descargar_evaluaciones_json():
     if not session.get("logueado"):
         return redirect(url_for("login"))
 
-    # Generar el archivo JSON completo cada vez que se solicite
-    evaluaciones = cargar_evaluaciones_desde_archivo()
-    
-    # Ordenar por match_id para mejor organización
-    evaluaciones_ordenadas = sorted(evaluaciones, key=lambda x: x.get("match_id", 0))
-    
-    # Crear un archivo temporal
-    temp_file = os.path.join(os.getcwd(), "evaluaciones_completas.json")
-    with open(temp_file, "w", encoding="utf-8") as f:
-        json.dump(evaluaciones_ordenadas, f, indent=2, ensure_ascii=False)
+    archivo = 'evaluaciones.json'
     
     try:
-        return send_from_directory(os.getcwd(), "evaluaciones_completas.json", as_attachment=True)
-    finally:
-        # Opcional: eliminar el archivo temporal después de enviarlo
-        try:
-            os.remove(temp_file)
-        except:
-            pass
-def guardar_evaluacion_en_archivo(evaluacion):
-    """Guarda una evaluación en el archivo JSON en formato de lista acumulativa"""
-    try:
-        # Cargar evaluaciones existentes o crear lista vacía
-        evaluaciones = []
-        if os.path.exists("evaluaciones.json"):
-            with open("evaluaciones.json", "r", encoding="utf-8") as f:
-                try:
-                    evaluaciones = json.load(f)
-                    if not isinstance(evaluaciones, list):
-                        evaluaciones = []  # Resetear si no es una lista
-                except json.JSONDecodeError:
-                    evaluaciones = []
+        # Verificar existencia
+        if not os.path.exists(archivo):
+            return "No hay evaluaciones registradas", 404
         
-        # Añadir nueva evaluación
-        evaluaciones.append(evaluacion)
-        
-        # Guardar todas las evaluaciones
-        with open("evaluaciones.json", "w", encoding="utf-8") as f:
-            json.dump(evaluaciones, f, indent=2, ensure_ascii=False)
-            
-        return True
+        # Leer contenido directamente (ya está en formato correcto)
+        return send_from_directory(
+            os.getcwd(),
+            archivo,
+            as_attachment=True,
+            mimetype='application/json'
+        )
     except Exception as e:
-        print(f"Error al guardar evaluación: {e}")
-        return False
-
+        return f"Error al descargar: {str(e)}", 500
+        
+def guardar_evaluacion_en_archivo(evaluacion):
+    """Guarda evaluaciones en formato acumulativo (no sobrescribe)"""
+    archivo = 'evaluaciones.json'
+    evaluaciones = []
+    
+    # Cargar existentes si el archivo existe
+    if os.path.exists(archivo):
+        try:
+            with open(archivo, 'r', encoding='utf-8') as f:
+                evaluaciones = json.load(f)
+                if not isinstance(evaluaciones, list):
+                    evaluaciones = []  # Resetear si no es lista
+        except:
+            evaluaciones = []
+    
+    # Agregar nueva evaluación
+    evaluaciones.append(evaluacion)
+    
+    # Guardar todas
+    with open(archivo, 'w', encoding='utf-8') as f:
+        json.dump(evaluaciones, f, indent=2, ensure_ascii=False)
+        
 @app.route('/descargar_evaluaciones_json')
 def descargar_evaluaciones_json():
     if not session.get("logueado"):
@@ -970,6 +949,19 @@ def descargar_evaluaciones_json():
     except Exception as e:
         return f"Error al generar el archivo: {str(e)}", 500
 ###########
+@app.route("/debug_evaluaciones")
+def debug_evaluaciones():
+    """Ruta para verificar el contenido actual del archivo"""
+    if not os.path.exists('evaluaciones.json'):
+        return "Archivo no existe aún"
+    
+    with open('evaluaciones.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    return jsonify({
+        "total_evaluaciones": len(data),
+        "ultimas_3": data[-3:] if len(data) > 3 else data
+    })
 ###########
 
 if __name__ == "__main__":
