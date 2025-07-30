@@ -528,9 +528,6 @@ def insertar_o_actualizar_evaluacion_bd(jugada):
 
 @app.route("/evaluar", methods=["GET", "POST"])
 def evaluar():
-    # Add the login check at the beginning of the function
-    if not session.get('logueado'):
-        return redirect(url_for('login'))
 
     # Load all stored plays from a local JSON file
     jugadas = cargar_jugadas_desde_archivo()
