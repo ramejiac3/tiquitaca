@@ -135,6 +135,20 @@ def descargar_bd():
         return send_from_directory(os.getcwd(), 'evaluaciones.db', as_attachment=True)
     except FileNotFoundError:
         return "El archivo de base de datos no se encontró.", 404
+        
+@app.route("/descargar_evaluaciones_json")
+def descargar_evaluaciones_json():
+    if not session.get("logueado"):
+        return redirect(url_for("login")) # Asegura que solo usuarios logueados puedan descargar
+
+    json_filename = 'evaluaciones.json' # <-- ¡CONFIRMA QUE ESTE ES EL NOMBRE DE TU ARCHIVO JSON!
+
+    try:
+        # Asegúrate de que 'os' y 'send_from_directory' estén importados al inicio de app.py
+        import os # Solo si no lo has importado ya al inicio del archivo
+        return send_from_directory(os.getcwd(), json_filename, as_attachment=True)
+    except FileNotFoundError:
+        return f"El archivo {json_filename} no se encontró.", 404
 ##########################################################################
 @app.route("/")
 def index():
