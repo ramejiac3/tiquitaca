@@ -633,6 +633,7 @@ def evaluar():
                 razon=razon,
                 jugador=jugada_actual['jugador'],
                 modelo=jugada_actual['modelo']
+                dimensiones_eval=DIMENSIONES_PARA_EVALUACION
             )
         except Exception as e:
             print(f"Error guardando evaluación en BD: {e}")
@@ -822,6 +823,7 @@ def guardar_evaluacion():
                 razon=razon,
                 jugador=jugada_actual['jugador'],
                 modelo=jugada_actual['modelo']
+                dimensiones_eval=DIMENSIONES_PARA_EVALUACION
             )
         except Exception as e:
             print(f"Error guardando evaluación en BD: {e}")
