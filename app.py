@@ -421,7 +421,7 @@ def obtener_jugadas():
 #############################################################################################################
 def insertar_evaluacion_bd(match_id, movimiento, evaluacion_rubrica, razon, jugador, modelo, dimensiones_eval):
    
-    movimiento_json = json.dumps(movimiento) # Aquí, por ejemplo, 4 espacios de indentación
+    movimiento_json = json.dumps(movimiento)
     
     criterios_data = {f"criterio_{i+1}": evaluacion_rubrica.get(dimensiones_eval[i], None) for i in range(len(dimensiones_eval))}
 
@@ -631,7 +631,7 @@ def evaluar():
                 evaluacion_rubrica=rubrica,
                 razon=razon,
                 jugador=jugada_actual['jugador'],
-                modelo=jugada_actual['modelo']
+                modelo=jugada_actual['modelo'],
                 dimensiones_eval=DIMENSIONES_PARA_EVALUACION
             )
         except Exception as e:
