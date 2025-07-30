@@ -124,8 +124,7 @@
           method="POST" <!-- Método HTTP utilizado -->
           class="flex-grow-1"
           style="font-size: 1.2rem"
-          onsubmit="return validarFormulario()" <!-- Llama a una función JS para validar antes de enviar -->
-        >
+         >
           <!-- Campos ocultos que contienen los datos de la jugada actual -->
           <input type="hidden" name="match_id" value="{{ jugada.match_id }}" />
           <input type="hidden" name="jugador" value="{{ jugada.jugador }}" />
