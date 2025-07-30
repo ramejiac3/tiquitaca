@@ -420,11 +420,10 @@ def obtener_jugadas():
     return jugadas  # Retorna lista de jugadas
 #############################################################################################################
 def insertar_evaluacion_bd(match_id, movimiento, evaluacion_rubrica, razon, jugador, modelo, dimensiones_eval):
-    # Serializar el movimiento y la evaluación de la rúbrica para almacenarlos como texto JSON
-    movimiento_json = json.dumps(movimiento)
+   
+    movimiento_json = json.dumps(movimiento) # Aquí, por ejemplo, 4 espacios de indentación
     
-    # Prepara los valores de los criterios de la rúbrica
-   criterios_data = {f"criterio_{i+1}": evaluacion_rubrica.get(dimensiones_eval[i], None) for i in range(len(dimensiones_eval))}
+    criterios_data = {f"criterio_{i+1}": evaluacion_rubrica.get(dimensiones_eval[i], None) for i in range(len(dimensiones_eval))}
 
     # Busca evaluación existente con mismo match_id, movimiento y jugador
     existente = Evaluacion.query.filter_by(
