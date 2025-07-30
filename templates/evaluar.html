@@ -120,7 +120,7 @@
       <!-- Formulario que permite evaluar la jugada mediante una rúbrica -->
       <div class="d-flex gap-3 flex-wrap">
         <form
-          action="/guardar_evaluacion" <!-- Ruta a la que se envía el formulario -->
+          id="evaluationForm" action="/guardar_evaluacion"
           method="POST" <!-- Método HTTP utilizado -->
           class="flex-grow-1"
           style="font-size: 1.2rem"
@@ -215,5 +215,67 @@
 
     <!-- Script de Bootstrap que activa funcionalidades dinámicas como modales, tooltips, etc. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  #############################################################################
+    <script src="/static/js/evaluar.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('evaluationForm');
+            const saveBtn = document.getElementById('saveEvaluationBtn');
+
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    // Validar formulario (si quitaste el onsubmit, puedes copiar la lógica aquí)
+                    // Por ahora, solo enviaremos
+                    
+                    // Recoger los datos del formulario
+                    const formData = new FormData(form);
+                    const queryParams = new URLSearchParams();
+                    const rubricaData = {};
+
+                    for (const [key, value] of formData.entries()) {
+                        // Flask recibe 'rubrica[Dimensión]' directamente.
+                        // Para FormData y fetch, necesitamos reconstruirlo para que Flask lo interprete correctamente.
+                        // Si quieres enviar como application/x-www-form-urlencoded
+                        // Flask request.form ya lo parsea correctamente de FormData.
+                        // El problema es si se está volviendo a GET.
+
+                        // Si tienes la validación, ponla aquí
+                        // if (!validarFormulario()) { // Si validarFormulario sigue existiendo
+                        //    return; // Detiene el envío
+                        // }
+
+                        // Para simular la estructura de URL con los rubrica[dimension]
+                        // vamos a pasar los datos como un objeto para fetch.
+                        // Pero para un POST normal con FormData, Flask ya lo maneja bien.
+                        // El objetivo aquí es simplemente forzar el método.
+                    }
+
+                    fetch(form.action, {
+                        method: 'POST', // FORZAMOS EXPLICITAMENTE EL MÉTODO POST
+                        body: formData // Enviamos los datos del formulario
+                    })
+                    .then(response => {
+                        console.log('Respuesta del servidor:', response);
+                        if (response.ok) { // Si la respuesta fue exitosa (200-299)
+                            alert('Evaluación guardada con éxito (POST forzado)');
+                            window.location.href = '/evaluar'; // Redirige de vuelta
+                        } else if (response.status === 405) {
+                            alert('Error 405: Método no permitido (¡Todavía GET! Hay un problema grave)');
+                            // Si esto sigue siendo 405 aquí, el problema es aún más profundo.
+                        } else {
+                            alert(`Error al guardar la evaluación: ${response.status} ${response.statusText}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error de red al guardar evaluación:', error);
+                        alert('Error de red al guardar la evaluación.');
+                    });
+                });
+            }
+        });
+    </script>
+    </body>
 </html>
