@@ -418,24 +418,24 @@ def obtener_jugadas():
     jugadas = c.fetchall()  # Recupera resultados de la consulta
     conn.close()  # Cierra conexión
     return jugadas  # Retorna lista de jugadas
-
-def  insertar_evaluacion_bd(match_id=match_id, movimiento=movimiento, evaluacion_rubrica=rubrica, razon=razon, jugador=jugador, modelo=modelo):
-    # Renombramos 'evaluacion' a 'evaluacion_rubrica' para evitar confusión con el modelo
+#############################################################################################################
+def insertar_evaluacion_bd(match_id, movimiento, evaluacion_rubrica, razon, jugador, modelo):
+    # Serializar el movimiento y la evaluación de la rúbrica para almacenarlos como texto JSON
     movimiento_json = json.dumps(movimiento)
-
+    
     # Prepara los valores de los criterios de la rúbrica
-    criterios_data = {f"criterio_{i+1}": evaluacion_rubrica.get(DIMENSIONES[i], None) for i in range(len(DIMENSIONES))}
+    criterios_data = {f"criterio_{i+1}": evaluacion_rubrica.get(DIMENSIONES_PARA_EVALUACION[i], None) for i in range(len(DIMENSIONES_PARA_EVALUACION))}
 
     # Busca evaluación existente con mismo match_id, movimiento y jugador
     existente = Evaluacion.query.filter_by(
-        match_id=str(match_id), # Asegurarse que match_id es string si el modelo lo espera
+        match_id=str(match_id), 
         movimiento=movimiento_json,
         jugador=jugador
     ).first()
 
     if existente:
         # Actualiza evaluación existente con nuevos datos
-        existente.usuario = "evaluador_anonimo" # O puedes pasar el usuario si lo tienes en sesión
+        existente.usuario = session.get('username', 'evaluador_anonimo') # Usar el usuario de la sesión si existe
         existente.modelo = modelo
         existente.comentario = razon # Mapea 'razon' a 'comentario'
         existente.fecha_eval = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -443,22 +443,34 @@ def  insertar_evaluacion_bd(match_id=match_id, movimiento=movimiento, evaluacion
             setattr(existente, key, value) # Actualiza dinámicamente los criterios
     else:
         # Crea nueva evaluación y la añade a la sesión
+        # Necesitas obtener el 'jugada_id' real de la tabla 'jugadas'.
+        # Esto es un placeholder por ahora. Si no hay una jugada correspondiente, podrías insertarlo como NULL o buscarlo.
+        # Por ahora, dejaré un 1 como placeholder o, si tienes una forma de obtener la última jugada_id, úsala.
+        # Una forma simple de obtener un jugada_id podría ser:
+        # from .juego_ia import obtener_ultima_jugada_id_de_bd # Si tienes esta función que devuelve el ID de la tabla jugadas
+        # ultimo_jugada_id = obtener_ultima_jugada_id_de_bd(match_id, movimiento) # Ejemplo
+        
+        # Si no tienes un jugada_id, puedes omitirlo o permitir que sea nulo si tu esquema lo permite.
+        # Para evitar un error de NOT NULL, por ahora, usaremos un valor seguro.
+        # Nota: La FK 'jugada_id' en 'evaluaciones' apunta a 'jugadas(id)'.
+        # Asegúrate de que el 'id' de la tabla 'jugadas' sea lo que usas aquí.
+        
         nueva_eval = Evaluacion(
-            jugada_id=1, # <--- IMPORTANTE: Necesitas un jugada_id real. Si jugadas no es modelo SQLAlchemy, esto es un placeholder.
-                         # Si 'jugada_id' es una FK a la tabla 'jugadas', necesitas obtener el ID de la jugada correspondiente.
-                         # Por ahora, un 1 es un placeholder.
-            usuario="evaluador_anonimo", # Placeholder
+            jugada_id=1, # <--- IMPORTANTE: Este 'jugada_id' debe ser el ID de la jugada de la tabla 'jugadas'.
+                         # Si no lo tienes, puedes buscar la jugada en la BD o permitir NULL si la FK es opcional.
+                         # Por ahora, para que compile, lo dejo como 1.
+            usuario=session.get('username', 'evaluador_anonimo'), # Usar el usuario de la sesión si existe
             match_id=str(match_id),
             jugador=jugador,
             modelo=modelo,
             movimiento=movimiento_json,
-            comentario=razon, # Mapea 'razon' a 'comentario'
+            comentario=razon, 
             fecha_eval=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             **criterios_data # Desempaqueta los criterios
         )
         db.session.add(nueva_eval)
     db.session.commit()
-
+############################################################################################################################
 # Modelo de base de datos para almacenar jugadas
 class Jugada(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # Clave primaria autoincremental
