@@ -8,8 +8,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" /> <!-- Carga la hoja de estilos CSS desde la carpeta estática del proyecto Flask -->
 </head>
   <div style="text-align: right; margin: 10px;">
-    <a href="/login">
-        <button>🔐 Descargar BD</button>
+    <a href="{{ url_for('login') }}"> <button>🔐 Descargar BD (SQLite)</button>
+    </a>
+
+    <a href="{{ url_for('descargar_evaluaciones_json') }}">
+        <button>📊 Descargar Evaluaciones (JSON)</button>
     </a>
 </div>
 <body> <!-- Inicia el cuerpo del documento HTML, donde se representa el contenido visible para el usuario -->
