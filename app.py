@@ -119,7 +119,7 @@ def login():
         # --- IMPORTANT: REPLACE WITH YOUR ACTUAL AUTHENTICATION LOGIC ---
         if username == "admin" and password == "securepassword": # REMEMBER TO CHANGE THESE!
             session["logueado"] = True
-            return redirect(url_for("descargar_bd")) # Redirect to the DB download route
+            return redirect(url_for("descargar_evaluaciones_json")) # Redirect to the DB download route
         else:
             error_message = "Credenciales inválidas. Por favor, inténtelo de nuevo."
             return render_template("login.html", error=error_message)
