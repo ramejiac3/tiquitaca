@@ -385,31 +385,41 @@ def cargar_evaluaciones_desde_archivo():
 
 def guardar_evaluacion_en_archivo(evaluacion):
     # Carga evaluaciones previas, añade una nueva y guarda todas en archivo JSON
-    evaluaciones = cargar_evaluaciones_desde_archivo()
-    evaluaciones.append(evaluacion)
-    with open("evaluaciones.json", "w", encoding="utf-8") as f:
-        json.dump(evaluaciones, f, indent=2, ensure_ascii=False)
+try:
+        # Cargar evaluaciones existentes
+        if os.path.exists("evaluaciones.json"):
+            with open("evaluaciones.json", "r", encoding="utf-8") as f:
+                try:
+                    evaluaciones = json.load(f)
+                    if not isinstance(evaluaciones, list):
+                        evaluaciones = []
+                except json.JSONDecodeError:
+                    evaluaciones = []
+        else:
+            evaluaciones = []
+        
+        # Agregar nueva evaluación
+        evaluaciones.append(evaluacion)
+        
+        # Guardar todas las evaluaciones
+        with open("evaluaciones.json", "w", encoding="utf-8") as f:
+            json.dump(evaluaciones, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error al guardar evaluación: {e}")
 
 def guardar_evaluaciones_completas(match_id, jugadas):
-    # Para una partida, guarda todas las evaluaciones no evaluadas con valores iniciales
-    evaluaciones = [j for j in jugadas if j.get("match_id") == match_id]
-    dimensiones = [
-        "Comprensión de Reglas", "Validez y Legalidad", "Razonamiento Estratégico",
-        "Factualidad", "Coherencia Explicativa", "Claridad Lingüística", "Adaptabilidad"
-    ]
-
-    for ev in evaluaciones:
-        if not ev.get("evaluada", False):
-            # Inicializa evaluación con ceros y razón por defecto para jugadas no evaluadas
-            ev["evaluacion"] = {dim: 0 for dim in dimensiones}
-            ev["razon"] = "No evaluada por el usuario"
-            ev["evaluada"] = False
-
-    # Guarda cada evaluación como línea JSON en archivo de forma acumulativa
-    with open("evaluaciones.json", "a", encoding="utf-8") as f:
-        for ev in evaluaciones:
-            f.write(json.dumps(ev, ensure_ascii=False) + "\n")
-
+    """Guarda todas las evaluaciones de una partida en el archivo JSON"""
+    evaluaciones_partida = [j for j in jugadas if j.get("match_id") == match_id]
+    
+    for ev in evaluaciones_partida:
+        if ev.get("evaluada", False):
+            # Asegurarse de que la evaluación tenga todos los campos necesarios
+            ev.setdefault("evaluacion", {})
+            ev.setdefault("razon", "No evaluada por el usuario")
+            ev.setdefault("fecha_evaluacion", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            
+            # Guardar cada evaluación individualmente
+            guardar_evaluacion_en_archivo(ev)
 def obtener_jugadas():
     # Obtiene todas las jugadas almacenadas en la base de datos SQLite
     conn = create_connection()  # Abre conexión a base de datos
@@ -771,65 +781,54 @@ def ver_rubrica():
 @app.route('/guardar_evaluacion', methods=['POST'])
 def guardar_evaluacion():
     # Carga todas las jugadas guardadas en el archivo JSON local
-    jugadas = cargar_jugadas_desde_archivo()
-
-    # Obtiene datos del formulario enviados vía POST
+   jugadas = cargar_jugadas_desde_archivo()
     match_id = int(request.form.get("match_id"))
     razon = request.form.get("razon", "").strip()
-
-    # Recupera datos guardados en la sesión sobre la jugada actual
+    
     jugador = session.get("turno_actual", "desconocido")
     modelo = session.get("modelo", "desconocido")
     movimiento = session.get("movimiento", [])
-    tablero_actual = session.get("tablero", [["b"]*3 for _ in range(3)])
-    ganador = session.get("ganador", None)
-
-    # Extrae la evaluación (puntuaciones) de la rúbrica enviada desde el formulario
+    
     rubrica = {}
     for key in request.form:
         if key.startswith("rubrica[") and key.endswith("]"):
-            dim = key[7:-1]  # Extrae el nombre de la dimensión evaluada
+            dim = key[7:-1]
             rubrica[dim] = int(request.form.get(key))
 
-    # Busca la jugada correspondiente a este match_id que aún no esté evaluada
-    jugada_actual = None
+    # Actualizar todas las jugadas no evaluadas de este match_id
     for j in jugadas:
         if j['match_id'] == match_id and not j.get("evaluada", False):
-            jugada_actual = j
-            break
+            j.update({
+                "jugador": jugador,
+                "modelo": modelo,
+                "movimiento": movimiento,
+                "evaluacion": rubrica,
+                "razon": razon,
+                "evaluada": True,
+                "fecha_evaluacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            
+            # Guardar en la base de datos
+            try:
+                insertar_evaluacion_bd(
+                    match_id=match_id,
+                    movimiento=movimiento,
+                    evaluacion_rubrica=rubrica,
+                    razon=razon,
+                    jugador=jugador,
+                    modelo=modelo,
+                    dimensiones_eval=DIMENSIONES
+                )
+            except Exception as e:
+                print(f"Error guardando evaluación en BD: {e}")
 
-    if jugada_actual:
-        # Actualiza la jugada con los datos de la evaluación humana
-        jugada_actual["jugador"] = jugador
-        jugada_actual["modelo"] = modelo
-        jugada_actual["movimiento"] = movimiento
-        jugada_actual["tablero"] = tablero_actual
-        jugada_actual["ganador"] = ganador
-        jugada_actual["evaluacion"] = rubrica
-        jugada_actual["razon"] = razon
-        jugada_actual["evaluada"] = True
-        jugada_actual["fecha_evaluacion"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Guarda los cambios en el archivo de jugadas como respaldo
-        guardar_jugadas_en_archivo(jugadas)
-
-        # Intenta guardar la evaluación en la base de datos, manejando posibles errores
-        try:
-            insertar_evaluacion_bd(
-                match_id=jugada_actual['match_id'],
-                movimiento=jugada_actual['movimiento'],
-                evaluacion_rubrica=rubrica,
-                razon=razon,
-                jugador=jugada_actual['jugador'],
-                modelo=jugada_actual['modelo'],
-                dimensiones_eval=DIMENSIONES_PARA_EVALUACION
-            )
-        except Exception as e:
-            print(f"Error guardando evaluación en BD: {e}")
-
-    # Redirige a la página principal después de guardar la evaluación
-    # Redirige a la descarga automática del archivo .txt con todas las evaluaciones
-    return redirect(url_for("descargar_evaluaciones_txt"))
+    # Guardar todas las jugadas actualizadas
+    guardar_jugadas_en_archivo(jugadas)
+    
+    # Guardar específicamente las evaluaciones de esta partida
+    guardar_evaluaciones_completas(match_id, jugadas)
+    
+    return redirect(url_for("descargar_evaluaciones_json"))
 
 
 @app.route("/siguiente_jugada", methods=["POST"])
@@ -896,40 +895,29 @@ from flask import make_response
 @app.route('/descargar_evaluaciones_txt')
 def descargar_evaluaciones_txt():
     # Cargar las evaluaciones desde el archivo JSON
-    if not os.path.exists("evaluaciones.json"):
-        return "No hay evaluaciones aún.", 404
+    def descargar_evaluaciones_json():
+    if not session.get("logueado"):
+        return redirect(url_for("login"))
 
-    with open("evaluaciones.json", "r", encoding="utf-8") as f:
-        lineas = f.readlines()
-
-    contenido_txt = "ID JUEGO\tComprensión de Reglas\tValidez y Legalidad\tRazonamiento Estratégico\tFactualidad\tCoherencia Explicativa\tClaridad Lingüística\tAdaptabilidad\n"
+    # Generar el archivo JSON completo cada vez que se solicite
+    evaluaciones = cargar_evaluaciones_desde_archivo()
     
-    for linea in lineas:
+    # Ordenar por match_id para mejor organización
+    evaluaciones_ordenadas = sorted(evaluaciones, key=lambda x: x.get("match_id", 0))
+    
+    # Crear un archivo temporal
+    temp_file = os.path.join(os.getcwd(), "evaluaciones_completas.json")
+    with open(temp_file, "w", encoding="utf-8") as f:
+        json.dump(evaluaciones_ordenadas, f, indent=2, ensure_ascii=False)
+    
+    try:
+        return send_from_directory(os.getcwd(), "evaluaciones_completas.json", as_attachment=True)
+    finally:
+        # Opcional: eliminar el archivo temporal después de enviarlo
         try:
-            evaluacion = json.loads(linea)
-            if evaluacion.get("evaluada"):
-                match_id = evaluacion.get("match_id", "")
-                eval_data = evaluacion.get("evaluacion", {})
-                fila = [
-                    str(match_id),
-                    str(eval_data.get("Comprensión de Reglas", 0)),
-                    str(eval_data.get("Validez y Legalidad", 0)),
-                    str(eval_data.get("Razonamiento Estratégico", 0)),
-                    str(eval_data.get("Factualidad", 0)),
-                    str(eval_data.get("Coherencia Explicativa", 0)),
-                    str(eval_data.get("Claridad Lingüística", 0)),
-                    str(eval_data.get("Adaptabilidad", 0)),
-                ]
-                contenido_txt += "\t".join(fila) + "\n"
-        except Exception as e:
-            print(f"Error procesando evaluación: {e}")
-
-    # Crear respuesta para descarga
-    response = make_response(contenido_txt)
-    response.headers["Content-Disposition"] = "attachment; filename=evaluaciones_completas.txt"
-    response.headers["Content-Type"] = "text/plain; charset=utf-8"
-    return response
-
+            os.remove(temp_file)
+        except:
+            pass
 ###########
 ###########
 
