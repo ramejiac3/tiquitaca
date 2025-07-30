@@ -38,8 +38,6 @@ import os  # Importa módulo para manejo de sistema operativo y archivos
 import json  # Importa módulo para manejo de datos JSON
 from datetime import datetime  # Importa clase para manejo de fechas y horas
 ############
-import json
-import os
 
 RUTA_JUGADAS = 'jugadas.json'  # Cambia si quieres otra ruta
 
