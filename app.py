@@ -828,7 +828,8 @@ def guardar_evaluacion():
             print(f"Error guardando evaluación en BD: {e}")
 
     # Redirige a la página principal después de guardar la evaluación
-    return redirect(url_for("index"))
+    # Redirige a la descarga automática del archivo .txt con todas las evaluaciones
+    return redirect(url_for("descargar_evaluaciones_txt"))
 
 
 @app.route("/siguiente_jugada", methods=["POST"])
@@ -887,6 +888,48 @@ def grafico_radar():
     promedios = calcular_promedios(evaluaciones)
     # Renderiza la plantilla con las dimensiones y los promedios calculados
     return render_template("grafico_radar.html", dimensiones=DIMENSIONES, promedios=promedios)
+from flask import send_file
+import io
+######################################################################################################
+from flask import make_response
+
+@app.route('/descargar_evaluaciones_txt')
+def descargar_evaluaciones_txt():
+    # Cargar las evaluaciones desde el archivo JSON
+    if not os.path.exists("evaluaciones.json"):
+        return "No hay evaluaciones aún.", 404
+
+    with open("evaluaciones.json", "r", encoding="utf-8") as f:
+        lineas = f.readlines()
+
+    contenido_txt = "ID JUEGO\tComprensión de Reglas\tValidez y Legalidad\tRazonamiento Estratégico\tFactualidad\tCoherencia Explicativa\tClaridad Lingüística\tAdaptabilidad\n"
+    
+    for linea in lineas:
+        try:
+            evaluacion = json.loads(linea)
+            if evaluacion.get("evaluada"):
+                match_id = evaluacion.get("match_id", "")
+                eval_data = evaluacion.get("evaluacion", {})
+                fila = [
+                    str(match_id),
+                    str(eval_data.get("Comprensión de Reglas", 0)),
+                    str(eval_data.get("Validez y Legalidad", 0)),
+                    str(eval_data.get("Razonamiento Estratégico", 0)),
+                    str(eval_data.get("Factualidad", 0)),
+                    str(eval_data.get("Coherencia Explicativa", 0)),
+                    str(eval_data.get("Claridad Lingüística", 0)),
+                    str(eval_data.get("Adaptabilidad", 0)),
+                ]
+                contenido_txt += "\t".join(fila) + "\n"
+        except Exception as e:
+            print(f"Error procesando evaluación: {e}")
+
+    # Crear respuesta para descarga
+    response = make_response(contenido_txt)
+    response.headers["Content-Disposition"] = "attachment; filename=evaluaciones_completas.txt"
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    return response
+
 ###########
 ###########
 
