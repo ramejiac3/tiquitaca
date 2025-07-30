@@ -124,18 +124,7 @@ def login():
             error_message = "Credenciales inválidas. Por favor, inténtelo de nuevo."
             return render_template("login.html", error=error_message)
     return render_template("login.html", error=None) # Pass error=None for initial GET request
-
-@app.route("/descargar_bd")
-def descargar_bd():
-    if not session.get("logueado"):
-        return redirect(url_for("login"))
-    try:
-        # Make sure 'os' is also imported at the top of app.py
-        import os # Add this import if not already present
-        return send_from_directory(os.getcwd(), 'evaluaciones.db', as_attachment=True)
-    except FileNotFoundError:
-        return "El archivo de base de datos no se encontró.", 404
-        
+    
 @app.route("/descargar_evaluaciones_json")
 def descargar_evaluaciones_json():
     if not session.get("logueado"):
