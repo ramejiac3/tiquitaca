@@ -419,7 +419,7 @@ def obtener_jugadas():
     conn.close()  # Cierra conexión
     return jugadas  # Retorna lista de jugadas
 
-def insertar_evaluacion_bd(match_id, movimiento, evaluacion_rubrica, razon, jugador, modelo):
+def  insertar_evaluacion_bd(match_id=match_id, movimiento=movimiento, evaluacion_rubrica=rubrica, razon=razon, jugador=jugador, modelo=modelo):
     # Renombramos 'evaluacion' a 'evaluacion_rubrica' para evitar confusión con el modelo
     movimiento_json = json.dumps(movimiento)
 
