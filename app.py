@@ -617,7 +617,7 @@ def evaluar():
             insertar_evaluacion_bd(
                 match_id=jugada_actual['match_id'],
                 movimiento=jugada_actual['movimiento'],
-                evaluacion=rubrica,
+                evaluacion_rubrica=rubrica,
                 razon=razon,
                 jugador=jugada_actual['jugador'],
                 modelo=jugada_actual['modelo']
