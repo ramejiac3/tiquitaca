@@ -78,15 +78,30 @@ with app.app_context():
 
 # --- Modelo de datos SQLAlchemy para evaluaciones ---
 class Evaluacion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # Clave primaria autoincremental
-    match_id = db.Column(db.String(50), nullable=False)  # Identificador único de la partida
-    jugador = db.Column(db.String(50), nullable=False)  # Nombre o identificador del jugador
-    modelo = db.Column(db.String(50), nullable=False)  # Modelo de IA que generó la jugada
-    movimiento = db.Column(db.Text, nullable=False)  # Movimiento realizado en formato JSON como texto
-    evaluacion_automatica = db.Column(db.Text, nullable=False)  # Evaluación automática almacenada en texto JSON
-    evaluacion_humana = db.Column(db.Text, nullable=True)  # Evaluación humana (opcional) en texto JSON
-    razon_automatica = db.Column(db.Text, nullable=True)  # Razón o explicación de evaluación automática
-    razon_humana = db.Column(db.Text, nullable=True)  # Razón o explicación de evaluación humana
+    __tablename__ = 'evaluaciones' # <--- ¡IMPORTANTE! Define el nombre de la tabla explícitamente
+
+    id = db.Column(db.Integer, primary_key=True)
+    jugada_id = db.Column(db.Integer, nullable=False) # Coincide con db_handler.py
+    usuario = db.Column(db.Text, nullable=True) # Coincide con db_handler.py (aunque tu app no lo usa explícitamente ahora)
+    match_id = db.Column(db.String(50), nullable=False)
+    jugador = db.Column(db.String(50), nullable=False)
+    modelo = db.Column(db.String(50), nullable=False)
+    movimiento = db.Column(db.Text, nullable=False)
+
+    # Columnas para la rúbrica (criterios 1-7)
+    criterio_1 = db.Column(db.Integer, nullable=True)
+    criterio_2 = db.Column(db.Integer, nullable=True)
+    criterio_3 = db.Column(db.Integer, nullable=True)
+    criterio_4 = db.Column(db.Integer, nullable=True)
+    criterio_5 = db.Column(db.Integer, nullable=True)
+    criterio_6 = db.Column(db.Integer, nullable=True)
+    criterio_7 = db.Column(db.Integer, nullable=True)
+
+    comentario = db.Column(db.Text, nullable=True) # Para la razón general
+    fecha_eval = db.Column(db.Text, nullable=True) # Para la fecha de evaluación
+
+    # No necesitamos FOREIGN KEY aquí si db_handler.py ya la maneja o si Jugada no es un modelo SQLAlchemy
+    # Si Jugada también se convierte en un modelo SQLAlchemy, entonces sí se puede definir aquí.
 
 # --- Rúbrica de evaluación automática: debe coincidir con la del frontend JS ---
 DIMENSIONES = [
